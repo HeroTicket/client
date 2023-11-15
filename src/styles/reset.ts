@@ -16,4 +16,15 @@ export const GlobalStyle = createGlobalStyle`
     padding: 0 5rem;
     box-sizing: border-box;
   }
+
+  .hidden {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s, transform 0.5s;
+  }
+
+  .animate {
+    opacity: 1;
+    transform: translateY(0);
+  }
 `

@@ -17,6 +17,22 @@ const Main = () => {
   const serviceRef = useRef<HTMLDivElement>(null);
   const whatIsRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver((entries, observer) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+  
+    const elements = document.querySelectorAll('.hidden');
+    elements.forEach(el => observer.observe(el));
+  
+    return () => elements.forEach(el => observer.unobserve(el));
+  }, []);
+
   const scrollToService = () => {
     const serviceRefCurrent = serviceRef.current;
     if (!serviceRefCurrent) return;
@@ -86,7 +102,7 @@ const Main = () => {
           <Image src={main_img} alt='main' layout='responsive' width={800} height={720} quality={100} />
         </ImageContainer>
       </MainWrap>
-      <ServiceWrap ref={serviceRef}>
+      <ServiceWrap ref={serviceRef} className='hidden'>
         <ServiceText>
           <h1>Our Service</h1>
           <p>
@@ -134,7 +150,7 @@ const Main = () => {
           </div>
         </ServiceCard>
       </ServiceWrap>
-      <WhatIsWrap ref={whatIsRef}>
+      <WhatIsWrap ref={whatIsRef} className='hidden'>
         <ServiceText>
           <h1>What is ERC-6551, DID?</h1>
         </ServiceText>
