@@ -112,21 +112,21 @@ const Main = () => {
             </p>
           </div>
           <div>
-            <Image src={nft} alt='nft' width={100} height={100} />
+            <Image src={nft} alt='nft' width={100} height={100} style={{ backgroundColor: 'rgba(228, 192, 93, 0.5)'}} />
             <p> 
               <span>Suscipit error labore vero eaque at quia voluptatibus.</span>
               Totam optio ullam amet dolore iusto dolores accusamus numquam. Reiciendis impedit aliquam.
             </p>
           </div>
           <div>
-            <Image src={decentralized} alt='decentralized' width={100} height={100} />
+            <Image src={decentralized} alt='decentralized' width={100} height={100} style={{ backgroundColor: 'rgba(78, 192, 78, 0.5)' }} />
             <p> 
               <span>Suscipit error labore vero eaque at quia voluptatibus.</span>
               Totam optio ullam amet dolore iusto dolores accusamus numquam. Reiciendis impedit aliquam.
             </p>
           </div>
           <div>
-            <Image src={corruption} alt='corruption' width={100} height={100} />
+            <Image src={corruption} alt='corruption' width={100} height={100} style={{ backgroundColor: 'rgba(146, 198, 233, 0.5)' }} />
             <p> 
               <span>Suscipit error labore vero eaque at quia voluptatibus.</span>
               Totam optio ullam amet dolore iusto dolores accusamus numquam. Reiciendis impedit aliquam.
