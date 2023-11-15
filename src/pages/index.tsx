@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import Header from '@/components/Common/Header'
-import Main from '@/components/Common/Main'
+import Footer from '@/components/Common/Footer'
+import Main from '@/components/Main'
 
 export default function Home() {
   return (
@@ -13,6 +14,7 @@ export default function Home() {
       </Head>
       <Header />
       <Main />
+      <Footer />
     </>
   )
 }
