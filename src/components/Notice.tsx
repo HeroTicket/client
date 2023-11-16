@@ -1,15 +1,57 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
+import ModalPortal from './ModalPortal';
 
 const dummyData = [
-  {'id': 1, 'title': 'title1', 'desc': 'In veniam libero alias animi dignissimos commodi quia.', 'date': '2023.11.11'},
+  {'id': 1, 'title': 'title1', 'desc': `In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.`,
+  'date': '2023.11.11'},
   {'id': 2, 'title': 'title2', 'desc': 'Et repudiandae exercitationem.', 'date': '2023.11.11'},
   {'id': 3, 'title': 'title3', 'desc': 'Quisquam ipsam dolorum sit ad.', 'date': '2023.11.11'},
   {'id': 4, 'title': 'title4', 'desc': 'Sapiente qui ipsum tempore fugit dignissimos iure omnis et.', 'date': '2023.11.11'},
   {'id': 5, 'title': 'title5', 'desc': 'Sapiente qui ipsum tempore fugit dignissimos iure omnis et.', 'date': '2023.11.11'},
 ]
 
+interface NoticeData {
+  id: number;
+  title: string;
+  desc: string;
+  date: string;
+}
+
 const Notice = () => {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedItem, setSelectedItem] = useState<NoticeData | null>(null);
+
+  const openModal = (data: NoticeData) => {
+    setSelectedItem(data);
+    setIsModalOpen(true);
+  }
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedItem(null);
+  }
 
   return (
     <NoticeContainer>
@@ -19,16 +61,26 @@ const Notice = () => {
       <NoticeListContainer>
         {dummyData.map((data) => {
           return (
-            <NoticeList key={data.id}>
+            <NoticeList key={data.id} onClick={() => openModal(data)}>
               <h3>{data.title}</h3>
               <p>{data.date}</p>
             </NoticeList>
           )
         })}
       </NoticeListContainer>
-      <div>
-        pagination
-      </div>
+      <Pagination>
+        <button>이전</button>
+        <button>다음</button>
+      </Pagination>
+      <ModalPortal isOpen={isModalOpen} onClose={closeModal}>
+        <div>
+          <h3>{selectedItem?.title}</h3>
+          <p>{selectedItem?.date}</p>
+        </div>
+        <div>
+          <p>{selectedItem?.desc}</p>
+        </div>
+      </ModalPortal>
     </NoticeContainer>
   )
 }
@@ -39,8 +91,7 @@ const NoticeContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-height: 100vh;
-  /* height: calc(100vh - 22vh); */
+  max-height: calc(100vh - 20vh);
 `
 
 const NoticeTitle = styled.div`
@@ -70,7 +121,8 @@ const NoticeList = styled.div`
   p {
     font-size: .8rem;
     color: #777;
-    margin: 0%;
+    margin-top: 0;
+    margin-bottom: .5rem
   }
 
   &::after {
@@ -88,3 +140,21 @@ const NoticeList = styled.div`
     width: 100%;
   }
 `;
+
+const Pagination = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  button {
+    padding: .5rem 1rem;
+    border: 1px solid #ece9e9;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .3s;
+    &:hover {
+      background-color: #ece9e9;
+    }
+  }
+`
