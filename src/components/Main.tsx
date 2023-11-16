@@ -1,8 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import Image from 'next/image';
+import styled, { keyframes } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
-import styled from 'styled-components';
 import main_img from '@/assets/images/main.png';
 import security from '@/assets/images/security.png';
 import corruption from '@/assets/images/corruption.png';
@@ -186,23 +186,36 @@ const easeLinear = (t: number, b: number, c: number, d: number) => {
 
 export default Main;
 
+const slideUp = keyframes`
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+`
+
 const MainWrap = styled.div`
+  animation: ${slideUp} 1s ease forwards;
   width: 100%;
   height: calc(100vh - 15vh);
   display: flex;
   flex-wrap: wrap-reverse;
   align-items: center;
-  justify-content: space-around;
-  gap: 2rem;
+  justify-content: space-between;
+  gap: 7rem;
   margin-bottom: 10rem;
 `
 
 const ImageContainer = styled.div`
-  max-width: 800px;
   height: auto;
   flex: 1;
-
+  
   img {
+    max-width: 700px;
+    max-height: 720px;
     border-radius: 2rem;
     box-shadow: 0 0 10px #999;
   }
@@ -332,7 +345,7 @@ const WhatIsWrap = styled.div`
 `
 
 const WhatIsDesc = styled.div`
-  width: 100%;
+  width: 90%;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
