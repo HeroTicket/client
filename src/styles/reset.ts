@@ -19,7 +19,7 @@ export const GlobalStyle = createGlobalStyle`
 
   .hidden {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(40px);
   transition: opacity 0.5s, transform 0.5s;
   }
 
