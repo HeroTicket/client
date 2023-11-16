@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image'
+import Link from 'next/link';
 import styled from 'styled-components';
 import logo from '@/assets/images/logo.png';
 
@@ -9,8 +10,12 @@ const Header = () => {
       <Image src={logo} alt='logo' width={150} height={25} quality={100} />
       <div>
         <Menu>
-          <li>About us</li>
-          <li>Notice</li>
+          <li>
+            <Link href='/'>About us</Link>
+          </li>
+          <li>
+            <Link href='/notice'> Notice </Link>
+          </li>
           <li>Ticket</li>
           <li>FAQ</li>
           <li>
@@ -42,6 +47,16 @@ const Menu = styled.ul`
   li {
     cursor: pointer;
     transition: all .3s;
+
+    a {
+      text-decoration: none;
+      color: #000;
+      transition: all .3s;
+
+      &:hover {
+        color: red;
+      }
+    }
 
     &:hover {
       color: red;
