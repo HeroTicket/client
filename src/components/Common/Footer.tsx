@@ -40,7 +40,7 @@ const FooterContainer = styled.footer`
 `
 
 const FooterLogo = styled.div`
-  width: 15%;
+  width: 10%;
 `
 
 const FooterIconContainer = styled.div`

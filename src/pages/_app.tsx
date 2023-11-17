@@ -7,6 +7,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <GlobalStyle />
       <Component {...pageProps} />
+      <div id='root-modal'></div>
     </>
   )
 }

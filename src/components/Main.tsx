@@ -1,8 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import Image from 'next/image';
+import styled, { keyframes } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
-import styled from 'styled-components';
 import main_img from '@/assets/images/main.png';
 import security from '@/assets/images/security.png';
 import corruption from '@/assets/images/corruption.png';
@@ -10,6 +10,7 @@ import decentralized from '@/assets/images/decentralized.png';
 import nft from '@/assets/images/nft.png';
 import did from '@/assets/images/did.png';
 import erc_6551 from '@/assets/images/erc_6551.png';
+import { MainWrap, ImageContainer, MainBtnWrap, MainLeft, ServiceWrap, ServiceCard, ServiceText, WhatIsWrap, WhatIsDesc } from '../styles/Main.styles';
 
 
 const Main = () => {
@@ -180,170 +181,8 @@ const Main = () => {
   )
 }
 
+export default Main;
+
 const easeLinear = (t: number, b: number, c: number, d: number) => {
   return c * t / d + b;
 }
-
-export default Main;
-
-const MainWrap = styled.div`
-  width: 100%;
-  height: calc(100vh - 15vh);
-  display: flex;
-  flex-wrap: wrap-reverse;
-  align-items: center;
-  justify-content: space-around;
-  gap: 2rem;
-  margin-bottom: 10rem;
-`
-
-const ImageContainer = styled.div`
-  max-width: 800px;
-  height: auto;
-  flex: 1;
-
-  img {
-    border-radius: 2rem;
-    box-shadow: 0 0 10px #999;
-  }
-`
-
-const MainLeft = styled.div`
-  width: 50%;
-  display: flex;
-  flex-direction: column;
-
-  h1 {
-    font-size: 3.5rem;
-  }
-
-  p {
-    font-size: 1.3rem;
-    margin-bottom: 5rem;
-  }
-`
-
-const MainBtnWrap = styled.div`
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 3rem;
-
-  button {
-    background-color: red;
-    color: white;
-    padding: .7rem 3rem;
-    border: none;
-    border-radius: .6rem;
-    font-size: 1.2rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all .3s;
-
-    &:hover {
-      background-color: #D71313;
-    }
-  }
-  div {
-    width: 50%;
-    display: flex;
-    align-items: center;
-    margin: 0;
-    cursor: pointer;
-    
-    p {
-      font-weight: bold;
-      margin: 0;
-
-      &:hover {
-        text-decoration: underline;
-      }
-    }
-    
-    svg {
-      width: 10%;
-      margin-left: 0.5rem;
-    }
-  }
-`
-
-const ServiceWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 10rem;
-`
-
-const ServiceText = styled.div`
-  width: 80%;
-  text-align: center;
-  margin-bottom: 4rem;
-
-  h1 {
-    margin-bottom: 2rem;
-  }
-`
-
-const ServiceCard = styled.div`
-  width: 90%;
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6rem;
-  text-align: center;
-  
-  div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 2rem;
-    padding: 1rem 2rem;
-    box-shadow: 0px 0px 10px #999;
-    border-radius: 3rem;
-    transition: all .3s;
-
-    &:hover {
-      transform: scale(1.1);
-    }
-
-    img {
-      background-color: rgba(0, 100, 255, 0.2);
-      border-radius: 50%;
-      padding: 1rem;
-    }
-
-    p {
-      display: flex;
-      flex-direction: column;
-      span {
-        margin-bottom: 1rem;
-        font-weight: bold;
-      }
-    }
-  }
-`
-
-const WhatIsWrap = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 10rem;
-`
-
-const WhatIsDesc = styled.div`
-  width: 100%;
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
-
-  div {
-    text-align: center;
-    
-    img {
-      box-shadow: 0px 0px 10px #999;
-      max-height: 397px;
-      border-radius: 4rem;
-    }
-  }
-`
