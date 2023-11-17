@@ -182,7 +182,3 @@ const Main = () => {
 }
 
 export default Main;
-
-const easeLinear = (t: number, b: number, c: number, d: number) => {
-  return c * t / d + b;
-}
