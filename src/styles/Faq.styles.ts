@@ -5,21 +5,23 @@ interface FaqListProps {
   isExpanded: boolean;
 }
 
-const rotateUp = keyframes`
-  from {
-    transform: rotate(0deg);
+const slideFadeInDropdownAnimation = keyframes`
+  0% {
+    opacity: 0;
+    transform: translateY(-1rem);
   }
-  to {
-    transform: rotate(-180deg);
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
-`
+`;
 
-const rotateDown = keyframes`
-  from {
-    transform: rotate(-180deg);
+const slideFadeOutDropdownAnimation = keyframes`
+  0% {
+    transform: translateY(0);
   }
-  to {
-    transform: rotate(0deg);
+  100% {
+    transform: translateY(-100%);
   }
 `
 
@@ -31,13 +33,16 @@ export const FaqList = styled(ListItem)<FaqListProps>`
   .icon {
     width: 1%;
     margin-left: 0.5rem;
-    animation: ${({ isExpanded }) => isExpanded ? rotateUp : rotateDown} .3s forwards;
+    transform: ${({ isExpanded }) => isExpanded ? 'rotate(-180deg)' : 'rotate(0deg)'};
+    transition: transform 0.3s ease;  
   }
 `;
 
-export const FaqDesc = styled.div<FaqListProps>`
-  padding: 0.5rem 1rem;
-  max-height: ${({ isExpanded }) => isExpanded ? '500px' : '0'}; // 최대 높이 조절
+export const FaqDesc = styled.div<{ isOpen: boolean }>`
+  max-height: ${({ isOpen }) => (isOpen ? '200px' : '0')};
   overflow: hidden;
-  transition: max-height 0.5s ease-in-out; // 부드러운 전환 효과
+  padding: ${({ isOpen }) => (isOpen ? '.5rem 1rem' : '0')};
+  transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+  opacity: ${({ isOpen }) => (isOpen ? '1' : '0')};
+  white-space: pre-line;
 `;
