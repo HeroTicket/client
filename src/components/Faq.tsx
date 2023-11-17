@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import ModalPortal from './ModalPortal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
 
 const dummyData = [
   {'id': 1, 'title': 'title1', 'desc': `In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
@@ -40,30 +41,23 @@ interface NoticeData {
   date: string;
 }
 
-const Notice = () => {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedItem, setSelectedItem] = useState<NoticeData | null>(null);
 
-  const openModal = (data: NoticeData) => {
-    setSelectedItem(data);
-    setIsModalOpen(true);
-  }
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedItem(null);
-  }
+const Faq = () => {
 
   return (
     <NoticeContainer>
       <NoticeTitle>
-        <h1>Notice</h1>
+        <h1>FAQ</h1>
       </NoticeTitle>
       <NoticeListContainer>
         {dummyData.map((data) => {
           return (
-            <NoticeList key={data.id} onClick={() => openModal(data)}>
-              <h3>{data.title}</h3>
-              <p>{data.date}</p>
+            <NoticeList key={data.id}>
+              <div>
+                <h3>{data.title}</h3>
+                <p>{data.date}</p>
+              </div>
+              <FontAwesomeIcon icon={faAngleDown} />
             </NoticeList>
           )
         })}
@@ -72,20 +66,11 @@ const Notice = () => {
         <button>이전</button>
         <button>다음</button>
       </Pagination>
-      <ModalPortal isOpen={isModalOpen} onClose={closeModal}>
-        <div>
-          <h3>{selectedItem?.title}</h3>
-          <p>{selectedItem?.date}</p>
-        </div>
-        <div>
-          <p>{selectedItem?.desc}</p>
-        </div>
-      </ModalPortal>
     </NoticeContainer>
   )
 }
 
-export default Notice;
+export default Faq;
 
 const slideUp = keyframes`
   from {
@@ -125,6 +110,9 @@ const NoticeListContainer = styled.div`
 `
 
 const NoticeList = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   position: relative; /* 가상 요소를 올바르게 배치하기 위해 필요 */
   padding: .5rem 1rem;
   border-bottom: 2px solid #ece9e9;
@@ -142,6 +130,11 @@ const NoticeList = styled.div`
     margin-top: 0;
     margin-bottom: .5rem
   }
+
+  svg {
+      width: 1%;
+      margin-left: 0.5rem;
+    }
 
   &::after {
     content: '';

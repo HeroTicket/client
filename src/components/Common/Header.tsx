@@ -7,7 +7,9 @@ import logo from '@/assets/images/logo.png';
 const Header = () => {
   return (
     <Head>
-      <Image src={logo} alt='logo' width={150} height={25} quality={100} />
+      <Link href='/'>
+        <Image src={logo} alt='logo' width={150} height={25} quality={100} />
+      </Link>
       <div>
         <Menu>
           <li>
@@ -17,7 +19,9 @@ const Header = () => {
             <Link href='/notice'> Notice </Link>
           </li>
           <li>Ticket</li>
-          <li>FAQ</li>
+          <li>
+            <Link href='/faq'>FAQ</Link>
+          </li>
           <li>
             <LoginBtn>Login</LoginBtn>
           </li>

@@ -211,7 +211,6 @@ const MainWrap = styled.div`
 
 const ImageContainer = styled.div`
   height: auto;
-  flex: 1;
   
   img {
     max-width: 700px;
@@ -281,10 +280,11 @@ const MainBtnWrap = styled.div`
 `
 
 const ServiceWrap = styled.div`
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 10rem;
+  margin-bottom: 12rem;
 `
 
 const ServiceText = styled.div`
@@ -301,10 +301,12 @@ const ServiceCard = styled.div`
   width: 90%;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 6rem;
+  justify-items: center;
+  gap: 1rem;
   text-align: center;
   
   div {
+    width: 50%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -345,12 +347,14 @@ const WhatIsWrap = styled.div`
 `
 
 const WhatIsDesc = styled.div`
-  width: 90%;
+  width: 80%;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 2rem;
+  justify-items: center;
+  gap: 1rem;
 
   div {
+    width: 80%;
     text-align: center;
     
     img {
