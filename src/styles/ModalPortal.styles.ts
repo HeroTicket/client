@@ -14,12 +14,13 @@ export const ModalContainer = styled.div<{isTicketPage: boolean}>`
   align-items: center;
 
   > div {
-    width: 50%;
-    max-height: ${(props) => (props.isTicketPage ? '900px' : '500px')};
+    width: ${(props) => (props.isTicketPage ? '60%' : '50%')};
+    max-height: ${(props) => (props.isTicketPage ? '1000px' : '500px')};
     overflow: scroll;
     display: flex;
     flex-direction: ${(props) => (props.isTicketPage ? 'row' : 'column')};
     align-items: ${(props) => (props.isTicketPage && 'center')};
+    justify-content: ${(props) => (props.isTicketPage && 'center')};
     gap: ${(props) => (props.isTicketPage && '3rem')};
     padding: 2rem;
     box-sizing: border-box;

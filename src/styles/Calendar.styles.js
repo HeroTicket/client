@@ -9,7 +9,7 @@ export const CalendarBox = styled.div`
 `;
 
 export const StyleCalendar = styled(Calendar)`
-  max-width: 100%;
+  width: 100%;
   border: none;
   margin-bottom: 15px;
   padding: 20px;
@@ -35,9 +35,6 @@ export const StyleCalendar = styled(Calendar)`
   }
 
   .react-calendar__month-view__weekdays {
-    text-align: center;
-    text-transform: uppercase;
-    font-weight: bold;
     font-size: 0.6em;
   }
 
@@ -58,6 +55,7 @@ export const StyleCalendar = styled(Calendar)`
 
   .react-calendar__tile:disabled {
     pointer-events: none;
+    color: #999;
   }
 
   .react-calendar__tile--now {
@@ -74,18 +72,23 @@ export const StyleCalendar = styled(Calendar)`
   .react-calendar__tile--hasActive {
     color: #ffffff;
     background-color: red;
-    border-radius: 5px;
+    border-radius: 0.5rem;
   }
 
   .react-calendar__tile--hasActive:enabled:hover,
   .react-calendar__tile--hasActive:enabled:focus {
     background-color: red;
+    border-radius: 0.5rem;
   }
 
   .react-calendar__tile--active {
-    color: #ffffff;
+    color: white;
     background-color: red;
     border-radius: 7px;
+  }
+
+  .react-calendar__tile:disabled.react-calendar__tile--active {
+    color: white;
   }
 
   .react-calendar__tile--active:enabled:hover,

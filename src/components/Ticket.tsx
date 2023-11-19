@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ModalPortal, DefaultImg } from './Common/Reference';
 import { Title } from '@/styles/styled';
@@ -7,7 +7,7 @@ import * as T from '@/styles/Ticket.styles';
 import * as S from '@/styles/Calendar.styles';
 
 const dummyData = [
-  { 'id': 1, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231030015704_23014028.gif', 'owner': 'voluptatem', 'place': 'occaecati', 'title': 'quo optio et', 'desc': 'Accusantium officia autem quos quisquam nisi officiis voluptatibus illo aut.' },
+  { 'id': 1, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231030015704_23014028.gif', 'owner': 'voluptatem', 'place': 'occaecati', 'title': 'quo optio et', 'desc': 'Fugiat enim a reprehenderit. Quis repellendus culpa non exercitationem. Illo est repudiandae. Qui ullam et molestiae aut. Commodi aliquid facilis perspiciatis minima illo itaque.Fugiat enim a reprehenderit. Quis repellendus culpa non exercitationem. Illo est repudiandae. Qui ullam et molestiae aut. Commodi aliquid facilis perspiciatis minima illo itaque.' },
   { 'id': 2, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2311/231103111621_23016085.gif', 'owner': 'quisquam', 'place': 'totam', 'title': 'quo optio et', 'desc': 'Illo deleniti quo velit ipsum consequatur facilis est minima.' },
   { 'id': 3, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231025103254_23014952.gif', 'owner': 'provident', 'place': 'voluptatem', 'title': 'quo optio et', 'desc': 'Placeat et repellendus voluptatum excepturi eos.' },
   { 'id': 4, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2311/231115060435_23015862.gif', 'owner': 'error', 'place': 'et', 'title': 'quo optio et', 'desc': 'Aut dolorem voluptatibus asperiores optio voluptas vel consectetur.' },
@@ -23,7 +23,6 @@ const dummyData = [
   { 'id': 14, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2309/230921024652_23013309.gif', 'owner': 'sit', 'place': 'omnis', 'title': 'quo optio et', 'desc': 'Assumenda facere nobis quae laborum corporis nihil autem sed maiores.' },
   { 'id': 15, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231031095904_23015513.gif', 'owner': 'harum', 'place': 'quae', 'title': 'quo optio et', 'desc': 'Dolorem ipsa recusandae consequuntur non eligendi eos eum saepe ea.' },
   { 'id': 16, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231012031758_23014405.gif', 'owner': 'in', 'place': 'in', 'title': 'quo optio et', 'desc': 'Et qui consequatur.' },
-  { 'id': 17, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231017044035_23014379.gif', 'owner': 'eaque', 'place': 'sed', 'title': 'quo optio et', 'desc': 'Quia consequatur cupiditate maxime officia perferendis accusantium quas hic est.' },
 ]
 
 interface TicketData {
@@ -63,10 +62,12 @@ const Ticket = () => {
   const openModal = (data: TicketData) => {
     setSelectedItem(data);
     setIsModalOpen(true);
+    document.body.style.overflow = "hidden";
   }
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedItem(null);
+    document.body.style.overflow = "unset";
   }
 
   return (
@@ -92,25 +93,29 @@ const Ticket = () => {
       </T.CardContainer>
       <ModalPortal isOpen={isModalOpen}>
         <T.ModalImageContainer>
-          <Image src={selectedItem?.poster || DefaultImg} alt="poster" fill quality={100}  />
+          <Image src={selectedItem?.poster || DefaultImg} alt="poster" fill={true} quality={100}  />
         </T.ModalImageContainer>
-        <div>
-          <h3>{selectedItem?.title}</h3>
-          <p>{selectedItem?.owner}</p>
-          <p>{selectedItem?.desc}</p>
+        <T.ModalRight>
           <div>
-          <S.CalendarBox>
-            <S.StyleCalendar
-              locale='en'
-              onChange={handleDateChange}
-              value={value}
-              tileDisabled={isDisabled}
-              calendarType='hebrew'
-            />
-          </S.CalendarBox>
+            <div>
+              <h1>{selectedItem?.title}</h1>
+              <p>{selectedItem?.owner}</p>
+            </div>
+            <p>{selectedItem?.desc}</p>
           </div>
+          <T.CalendarContainer>
+            <S.CalendarBox>
+              <S.StyleCalendar
+                locale='en'
+                onChange={handleDateChange}
+                value={value}
+                tileDisabled={isDisabled}
+                calendarType='hebrew'
+              />
+            </S.CalendarBox>
+          </T.CalendarContainer>
           <T.TicketBtn onClick={closeModal}>Next Step</T.TicketBtn>
-        </div>
+        </T.ModalRight>
       </ModalPortal>
     </T.TicketContainer>
   )
