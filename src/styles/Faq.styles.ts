@@ -5,36 +5,27 @@ interface FaqListProps {
   isExpanded: boolean;
 }
 
-const slideFadeInDropdownAnimation = keyframes`
-  0% {
-    opacity: 0;
-    transform: translateY(-1rem);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-`;
-
-const slideFadeOutDropdownAnimation = keyframes`
-  0% {
-    transform: translateY(0);
-  }
-  100% {
-    transform: translateY(-100%);
-  }
-`
-
 export const FaqList = styled(ListItem)<FaqListProps>`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-radius: 1rem;
+  box-shadow: 0 0 10px rgba(0, 0, 0, .2);
+  transition: all .3s ease-in-out;
 
   .icon {
     width: 1%;
     margin-left: 0.5rem;
     transform: ${({ isExpanded }) => isExpanded ? 'rotate(-180deg)' : 'rotate(0deg)'};
     transition: transform 0.3s ease;  
+  }
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  > div > h3 {
+    margin: 1rem 0;
   }
 `;
 
