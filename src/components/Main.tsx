@@ -1,15 +1,9 @@
 import React, { useRef, useEffect } from 'react';
 import Image from 'next/image';
-import styled, { keyframes } from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
-import main_img from '@/assets/images/main.png';
-import security from '@/assets/images/security.png';
-import corruption from '@/assets/images/corruption.png';
-import decentralized from '@/assets/images/decentralized.png';
-import nft from '@/assets/images/nft.png';
-import did from '@/assets/images/did.png';
-import erc_6551 from '@/assets/images/erc_6551.png';
+import { MainImg, NftImg, Security, Corruption, Decentralized, Did, Erc6551 } from './Common/Reference';
+import { ButtonStyle } from '@/styles/styled';
 import { MainWrap, ImageContainer, MainBtnWrap, MainLeft, ServiceWrap, ServiceCard, ServiceText, WhatIsWrap, WhatIsDesc } from '../styles/Main.styles';
 
 
@@ -92,7 +86,7 @@ const Main = () => {
             Donec venenatis fermentum vehicula. 
           </p>
           <MainBtnWrap>
-            <button>Get Start</button>
+            <ButtonStyle>Get Start</ButtonStyle>
             <div onClick={scrollToService}>
               <p>Learn More</p>
               <FontAwesomeIcon icon={faAngleDown} />
@@ -100,7 +94,7 @@ const Main = () => {
           </MainBtnWrap>
         </MainLeft>
         <ImageContainer>
-          <Image src={main_img} alt='main' layout='responsive' width={800} height={720} quality={100} />
+          <Image src={MainImg} alt='main' layout='responsive' width={800} height={720} quality={100} />
         </ImageContainer>
       </MainWrap>
       <ServiceWrap ref={serviceRef} className='hidden'>
@@ -122,28 +116,28 @@ const Main = () => {
         </ServiceText>
         <ServiceCard>
           <div>
-            <Image src={security} alt='security' width={100} height={100} />
+            <Image src={Security} alt='security' width={100} height={100} />
             <p> 
               <span>Suscipit error labore vero eaque at quia voluptatibus.</span>
               Totam optio ullam amet dolore iusto dolores accusamus numquam. Reiciendis impedit aliquam.
             </p>
           </div>
           <div>
-            <Image src={nft} alt='nft' width={100} height={100} style={{ backgroundColor: 'rgba(228, 192, 93, 0.5)'}} />
+            <Image src={NftImg} alt='nft' width={100} height={100} style={{ backgroundColor: 'rgba(228, 192, 93, 0.5)'}} />
             <p> 
               <span>Suscipit error labore vero eaque at quia voluptatibus.</span>
               Totam optio ullam amet dolore iusto dolores accusamus numquam. Reiciendis impedit aliquam.
             </p>
           </div>
           <div>
-            <Image src={decentralized} alt='decentralized' width={100} height={100} style={{ backgroundColor: 'rgba(78, 192, 78, 0.5)' }} />
+            <Image src={Decentralized} alt='decentralized' width={100} height={100} style={{ backgroundColor: 'rgba(78, 192, 78, 0.5)' }} />
             <p> 
               <span>Suscipit error labore vero eaque at quia voluptatibus.</span>
               Totam optio ullam amet dolore iusto dolores accusamus numquam. Reiciendis impedit aliquam.
             </p>
           </div>
           <div>
-            <Image src={corruption} alt='corruption' width={100} height={100} style={{ backgroundColor: 'rgba(146, 198, 233, 0.5)' }} />
+            <Image src={Corruption} alt='corruption' width={100} height={100} style={{ backgroundColor: 'rgba(146, 198, 233, 0.5)' }} />
             <p> 
               <span>Suscipit error labore vero eaque at quia voluptatibus.</span>
               Totam optio ullam amet dolore iusto dolores accusamus numquam. Reiciendis impedit aliquam.
@@ -157,7 +151,7 @@ const Main = () => {
         </ServiceText>
         <WhatIsDesc>
           <div>
-            <Image src={erc_6551} alt='ERC-6551' width={500} height={300} quality={100} layout='responsive' />
+            <Image src={Erc6551} alt='ERC-6551' width={500} height={300} quality={100} layout='responsive' />
             <h3>ERC-6551</h3>
             <p>
               Aliquam quis maximus lorem. Etiam lacinia leo elit, ut 
@@ -167,7 +161,7 @@ const Main = () => {
             </p>
           </div>
           <div>
-            <Image src={did} alt='ERC-6551' width={500} height={500} quality={100} layout='responsive' />
+            <Image src={Did} alt='ERC-6551' width={500} height={500} quality={100} layout='responsive' />
             <h3>DID</h3>
             <p>
               Integer sed aliquam odio, at consectetur tortor. 
@@ -179,6 +173,10 @@ const Main = () => {
       </WhatIsWrap>
     </>
   )
+}
+
+const easeLinear = (t: number, b: number, c: number, d: number) => {
+  return c * t / d + b;
 }
 
 export default Main;
