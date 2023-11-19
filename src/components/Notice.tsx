@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import styled, { keyframes } from 'styled-components';
 import ModalPortal from './ModalPortal';
-import { Container, Title, ListContainer, ListItem, Pagination } from '@/styles/styled';
+import { Container, Title, ListContainer, ListItem, Pagination, ModalCloseBtn } from '@/styles/styled';
+import { NoticeModalTitleContainer } from '@/styles/Notice.styles';
 
 const dummyData = [
   {'id': 1, 'title': 'title1', 'desc': `In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
@@ -74,13 +74,14 @@ const Notice = () => {
         <button>다음</button>
       </Pagination>
       <ModalPortal isOpen={isModalOpen} onClose={closeModal}>
-        <div>
+        <NoticeModalTitleContainer>
           <h3>{selectedItem?.title}</h3>
           <p>{selectedItem?.date}</p>
-        </div>
+        </NoticeModalTitleContainer>
         <div>
           <p>{selectedItem?.desc}</p>
         </div>
+        <ModalCloseBtn onClick={closeModal}>Close</ModalCloseBtn>
       </ModalPortal>
     </Container>
   )
