@@ -33,6 +33,7 @@ export const FaqDesc = styled.div<{ isOpen: boolean }>`
   max-height: ${({ isOpen }) => (isOpen ? '200px' : '0')};
   overflow: hidden;
   padding: ${({ isOpen }) => (isOpen ? '.5rem 1rem' : '0')};
+  box-sizing: border-box;
   transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
   opacity: ${({ isOpen }) => (isOpen ? '1' : '0')};
   white-space: pre-line;

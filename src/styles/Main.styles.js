@@ -19,8 +19,8 @@ export const MainWrap = styled.div`
   display: flex;
   flex-wrap: wrap-reverse;
   align-items: center;
-  justify-content: space-between;
-  gap: 7rem;
+  justify-content: space-around;
+  gap: 5rem;
   margin-bottom: 10rem;
 `;
 
@@ -56,9 +56,6 @@ export const MainBtnWrap = styled.div`
   align-items: center;
   gap: 3rem;
 
-  button {
-    ${buttonStyle}
-  }
   div {
     width: 50%;
     display: flex;
@@ -76,18 +73,19 @@ export const MainBtnWrap = styled.div`
     }
 
     svg {
-      width: 10%;
+      width: 3%;
       margin-left: 0.5rem;
     }
   }
 `;
 
 export const ServiceWrap = styled.div`
+  height: calc(100vh - 15vh);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 12rem;
+  gap: 5rem;
 `;
 
 export const ServiceText = styled.div`
@@ -128,6 +126,7 @@ export const ServiceCard = styled.div`
       background-color: rgba(0, 100, 255, 0.2);
       border-radius: 50%;
       padding: 1rem;
+      box-sizing: border-box;
     }
 
     p {
@@ -142,6 +141,7 @@ export const ServiceCard = styled.div`
 `;
 
 export const WhatIsWrap = styled.div`
+  height: calc(100vh - 20vh);
   display: flex;
   flex-direction: column;
   justify-content: center;

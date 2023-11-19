@@ -37,6 +37,7 @@ const FooterContainer = styled.footer`
   justify-content: space-between;
   border-top: 1px solid #999;
   padding: 1rem 0;
+  box-sizing: border-box;
 `
 
 const FooterLogo = styled.div`

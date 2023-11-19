@@ -1,28 +1,63 @@
 import React from 'react';
 import Image from 'next/image';
-import Logo from '@/assets/images/logo.png';
-import { CardContainer, Card } from '@/styles/Ticket.styles';
-import { Container, Title } from '@/styles/styled';
+import { NftImg, MainImg, Did, Erc6551, Security } from './Common/Reference';
+import { TicketContainer, CardContainer, Card, CardImgContainer, CardContent, TicketBtn } from '@/styles/Ticket.styles';
+import { Title } from '@/styles/styled';
+
+const dummyData = [
+  { 'id': 1, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 2, 'poster': MainImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 3, 'poster': Did, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 3, 'poster': Did, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 3, 'poster': Did, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 3, 'poster': Did, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 3, 'poster': Did, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 4, 'poster': Erc6551, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 5, 'poster': Security, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 6, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 7, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 8, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 9, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 10, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 11, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 12, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 13, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 14, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+]
+
+interface TicketData {
+  id: number;
+  poster: string;
+  title: string;
+  desc: string;
+}
 
 const Ticket = () => {
   return (
-    <Container>
+    <TicketContainer>
       <Title>
         <h1>Ticket</h1>
       </Title>
       <CardContainer>
-        <Card>
-          <div>
-            <Image src={Logo} alt="Logo" layout='responsive' width={100} height={100} quality={100}  />
-          </div>
-          <div>
-            <h2>티켓</h2>
-            <p>티켓</p>
-            <button>Buy</button>
-          </div>
-        </Card>
+        {dummyData.map((data) => {
+          return (
+            <Card key={data.id}>
+              <CardImgContainer>
+                <Image src={data.poster} alt="poster" fill quality={100}  />
+              </CardImgContainer>
+              <CardContent>
+                <div>
+                  <h2>{data.title}</h2>
+                  <h3>2021.11.11</h3>
+                </div>
+                <p>{data.desc}</p>
+                <TicketBtn>Buy</TicketBtn>
+              </CardContent>
+            </Card>
+          )
+        })}
       </CardContainer>
-    </Container>
+    </TicketContainer>
   )
 }
 
