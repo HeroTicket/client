@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import { Container, ButtonStyle } from './styled';
-import { ModalContainer } from './ModalPortal.styles';
 
 export const TicketContainer = styled(Container)`
   height: auto;
@@ -90,16 +89,17 @@ export const CardContent = styled.div`
 `;
 
 export const TicketBtn = styled(ButtonStyle)`
+  width: 100%;
   box-sizing: border-box;
   padding: 0.5rem 4rem;
 `;
 
 export const ModalImageContainer = styled(CardImgContainer)`
-  width: 30rem;
+  width: 59%;
   height: 50rem;
 
   img {
     padding-right: 2rem;
-    object-fit: cover;
+    object-fit: contain;
   }
 `;
