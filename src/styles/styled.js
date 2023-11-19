@@ -86,6 +86,22 @@ export const Pagination = styled.div`
   }
 `;
 
+export const ButtonStyle = styled.button`
+  background-color: red;
+  color: white;
+  padding: 0.7rem 3rem;
+  border: none;
+  border-radius: 0.6rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    background-color: #d71313;
+  }
+`;
+
 export const commonBoxShadow = '0 0 10px #999';
 export const commonBorderRadius = '2rem';
 
