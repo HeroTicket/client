@@ -1,6 +1,25 @@
-import styled from 'styled-components';
+import styled, {keyframes} from 'styled-components';
 
-export const ModalContainer = styled.div<{isTicketPage: boolean}>`
+const fadeIn = keyframes`
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+`;
+
+const fadeOut = keyframes`
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+`;
+
+
+export const ModalContainer = styled.div<{isOpen: boolean, isTicketPage: boolean, isLarge: boolean}>`
   width: 100%;
   height: 100%;
   position: fixed;
@@ -12,10 +31,15 @@ export const ModalContainer = styled.div<{isTicketPage: boolean}>`
   display: flex;
   justify-content: center;
   align-items: center;
+  animation: ${(prop: { isOpen: boolean }) => (prop.isOpen ? fadeIn : fadeOut)}
+    0.2s ease-in;
+    visibility: ${(prop: { isOpen: boolean }) =>
+      prop.isOpen ? "visible" : "hidden"};
+  transition: visibility 0.2s ease-out;
 
   > div {
-    width: ${(props) => (props.isTicketPage ? '60%' : '50%')};
-    max-height: ${(props) => (props.isTicketPage ? '1000px' : '500px')};
+    max-width: ${(props) => (props.isLarge ? '60%' : '50%')};
+    max-height: ${(props) => (props.isLarge ? '1000px' : '500px')};
     overflow: scroll;
     display: flex;
     flex-direction: ${(props) => (props.isTicketPage ? 'row' : 'column')};
@@ -26,5 +50,7 @@ export const ModalContainer = styled.div<{isTicketPage: boolean}>`
     box-sizing: border-box;
     border-radius: 1rem;
     background-color: #fff;
+    transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
   }
 `;
+
