@@ -41,7 +41,9 @@ export type Value = ValuePiece | [ValuePiece, ValuePiece];
 const Ticket = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<TicketData | null>(null);
-  const [value, setValue] = useState<Value>(new Date()); // 초기값을 오늘 날짜로 설정
+  const [value, setValue] = useState<Value>(new Date());
+  const [isNextStepClicked, setIsNextStepClicked] = useState<boolean>(false);
+  const [isLargeModal, setIsLargeModal] = useState(true);
 
   const handleDateChange = (newValue: Value) => {
     setValue(newValue);
@@ -57,17 +59,24 @@ const Ticket = () => {
     return view === 'month' && !availableDates.includes(date.getTime());
   };
 
-  console.log(value)
-  
   const openModal = (data: TicketData) => {
     setSelectedItem(data);
     setIsModalOpen(true);
     document.body.style.overflow = "hidden";
   }
   const closeModal = () => {
+    setIsLargeModal(true);
     setIsModalOpen(false);
-    setSelectedItem(null);
+    setIsNextStepClicked(false);
     document.body.style.overflow = "unset";
+    setTimeout(() => {
+      setSelectedItem(null);
+    }, 300); // 300ms는 애니메이션 지속 시간과 일치시킵니다.
+  }
+
+  const handleNextStepClick = () => {
+    setIsNextStepClicked(true);
+    setIsLargeModal(false); // 모달 크기를 줄입니다
   }
 
   return (
@@ -91,31 +100,39 @@ const Ticket = () => {
           )
         })}
       </T.CardContainer>
-      <ModalPortal isOpen={isModalOpen}>
-        <T.ModalImageContainer>
-          <Image src={selectedItem?.poster || DefaultImg} alt="poster" fill={true} quality={100}  />
-        </T.ModalImageContainer>
-        <T.ModalRight>
+      <ModalPortal isOpen={isModalOpen} onClose={closeModal} isLarge={isLargeModal}>
+        {!isNextStepClicked ? (
+          <>
+            <T.ModalImageContainer>
+              <Image src={selectedItem?.poster || DefaultImg} alt="poster" fill={true} quality={100}  />
+            </T.ModalImageContainer>
+            <T.ModalRight>
+              <div>
+                <div>
+                  <h1>{selectedItem?.title}</h1>
+                  <p>{selectedItem?.owner}</p>
+                </div>
+                <p>{selectedItem?.desc}</p>
+              </div>
+              <T.CalendarContainer>
+                <S.CalendarBox>
+                  <S.StyleCalendar
+                    locale='en'
+                    onChange={handleDateChange}
+                    value={value}
+                    tileDisabled={isDisabled}
+                    calendarType='hebrew'
+                  />
+                </S.CalendarBox>
+              </T.CalendarContainer>
+              <T.TicketBtn onClick={handleNextStepClick}>Next Step</T.TicketBtn>
+            </T.ModalRight>
+          </>
+        ) : (
           <div>
-            <div>
-              <h1>{selectedItem?.title}</h1>
-              <p>{selectedItem?.owner}</p>
-            </div>
-            <p>{selectedItem?.desc}</p>
+            <T.TicketBtn>Polygon ID authentication request</T.TicketBtn>
           </div>
-          <T.CalendarContainer>
-            <S.CalendarBox>
-              <S.StyleCalendar
-                locale='en'
-                onChange={handleDateChange}
-                value={value}
-                tileDisabled={isDisabled}
-                calendarType='hebrew'
-              />
-            </S.CalendarBox>
-          </T.CalendarContainer>
-          <T.TicketBtn onClick={closeModal}>Next Step</T.TicketBtn>
-        </T.ModalRight>
+        )}
       </ModalPortal>
     </T.TicketContainer>
   )

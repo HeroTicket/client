@@ -27,4 +27,9 @@ export const GlobalStyle = createGlobalStyle`
     opacity: 1;
     transform: translateY(0);
   }
+
+  .modal-active {
+  opacity: 1;
+  transform: scale(1);
+}
 `
