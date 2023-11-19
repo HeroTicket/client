@@ -5,19 +5,18 @@ import { ModalContainer } from '@/styles/ModalPortal.styles';
 
 interface ModalProps {
   isOpen: boolean;
-  onClose: () => void;
   children: React.ReactNode;
 }
 
 
-const ModalPortal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+const ModalPortal: React.FC<ModalProps> = ({ isOpen, children }) => {
   const router = useRouter();
   const isTicketPage = router.pathname === '/ticket';
 
   if (!isOpen) return null;
 
   return createPortal(
-    <ModalContainer onClick={onClose} isTicketPage={isTicketPage}>
+    <ModalContainer isTicketPage={isTicketPage}>
       <div>
         {children}
       </div>

@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { ModalPortal } from './Common/Reference';
-import { TicketContainer, CardContainer, Card, CardImgContainer, CardContent, TicketBtn, ModalImageContainer } from '@/styles/Ticket.styles';
+import { ModalPortal, DefaultImg } from './Common/Reference';
 import { Title } from '@/styles/styled';
+import 'react-calendar/dist/Calendar.css';
+import * as T from '@/styles/Ticket.styles';
+import * as S from '@/styles/Calendar.styles';
 
 const dummyData = [
   { 'id': 1, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231030015704_23014028.gif', 'owner': 'voluptatem', 'place': 'occaecati', 'title': 'quo optio et', 'desc': 'Accusantium officia autem quos quisquam nisi officiis voluptatibus illo aut.' },
@@ -33,10 +35,31 @@ interface TicketData {
   desc: string;
 }
 
+type ValuePiece = Date | null;
+
+export type Value = ValuePiece | [ValuePiece, ValuePiece];
+
 const Ticket = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<TicketData | null>(null);
+  const [value, setValue] = useState<Value>(new Date()); // 초기값을 오늘 날짜로 설정
 
+  const handleDateChange = (newValue: Value) => {
+    setValue(newValue);
+  };
+
+  const availableDates = [
+    new Date(2023, 11, 7).getTime(), // 12월 7일
+    new Date(2023, 11, 8).getTime(), // 12월 8일
+    new Date(2023, 11, 9).getTime(), // 12월 9일
+  ];
+
+  const isDisabled = ({ date, view }: { date: Date; view: string }): boolean => {
+    return view === 'month' && !availableDates.includes(date.getTime());
+  };
+
+  console.log(value)
+  
   const openModal = (data: TicketData) => {
     setSelectedItem(data);
     setIsModalOpen(true);
@@ -46,43 +69,50 @@ const Ticket = () => {
     setSelectedItem(null);
   }
 
-
   return (
-    <TicketContainer>
+    <T.TicketContainer>
       <Title>
         <h1>Ticket</h1>
       </Title>
-      <CardContainer>
+      <T.CardContainer>
         {dummyData.map((data) => {
           return (
-            <Card key={data.id} onClick={() => openModal(data)}>
-              <CardImgContainer>
+            <T.Card key={data.id} onClick={() => openModal(data)}>
+              <T.CardImgContainer>
                 <Image src={data.poster} alt="poster" fill quality={100}  />
-              </CardImgContainer>
-              <CardContent>
+              </T.CardImgContainer>
+              <T.CardContent>
                 <h2>{data.owner}</h2>
                 <p className="place">{data.place}</p>
                 <p className='title'>{data.title}</p>
-              </CardContent>
-            </Card>
+              </T.CardContent>
+            </T.Card>
           )
         })}
-      </CardContainer>
-      <ModalPortal isOpen={isModalOpen} onClose={closeModal}>
-        <ModalImageContainer>
-          <Image src={selectedItem?.poster} alt="poster" fill quality={100}  />
-        </ModalImageContainer>
+      </T.CardContainer>
+      <ModalPortal isOpen={isModalOpen}>
+        <T.ModalImageContainer>
+          <Image src={selectedItem?.poster || DefaultImg} alt="poster" fill quality={100}  />
+        </T.ModalImageContainer>
         <div>
           <h3>{selectedItem?.title}</h3>
           <p>{selectedItem?.owner}</p>
           <p>{selectedItem?.desc}</p>
           <div>
-            달력
+          <S.CalendarBox>
+            <S.StyleCalendar
+              locale='en'
+              onChange={handleDateChange}
+              value={value}
+              tileDisabled={isDisabled}
+              calendarType='hebrew'
+            />
+          </S.CalendarBox>
           </div>
-          <button>Next Step</button>
+          <T.TicketBtn onClick={closeModal}>Next Step</T.TicketBtn>
         </div>
       </ModalPortal>
-    </TicketContainer>
+    </T.TicketContainer>
   )
 }
 
