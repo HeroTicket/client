@@ -7,4 +7,6 @@ import Erc6551 from '@/assets/images/erc_6551.png';
 import Corruption from '@/assets/images/corruption.png';
 import Decentralized from '@/assets/images/decentralized.png';
 
-export { Logo, MainImg, NftImg, Security, Did, Erc6551, Corruption, Decentralized };
+import ModalPortal from '../ModalPortal';
+
+export { Logo, MainImg, NftImg, Security, Did, Erc6551, Corruption, Decentralized, ModalPortal };

@@ -102,6 +102,20 @@ export const ButtonStyle = styled.button`
   }
 `;
 
+export const ModalCloseBtn = styled.button`
+  margin-top: 1rem;
+  background-color: transparent;
+  border: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+
+  &:hover {
+    color: red;
+  }
+`;
+
 export const commonBoxShadow = '0 0 10px #999';
 export const commonBorderRadius = '2rem';
 

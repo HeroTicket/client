@@ -4,6 +4,9 @@ const nextConfig = {
   compiler: {
     styledComponents: true,
   },
+  images: {
+    domains: ['ticketimage.interpark.com'],
+  },
 };
 
 module.exports = nextConfig;
