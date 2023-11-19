@@ -15,14 +15,14 @@ const dummyData = [
   { 'id': 4, 'poster': Erc6551, 'title': 'ticket1', 'desc': 'quo optio et' },
   { 'id': 5, 'poster': Security, 'title': 'ticket1', 'desc': 'quo optio et' },
   { 'id': 6, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
-  { 'id': 6, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
-  { 'id': 6, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
-  { 'id': 6, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
-  { 'id': 6, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
-  { 'id': 6, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
-  { 'id': 6, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
-  { 'id': 6, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
-  { 'id': 6, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 7, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 8, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 9, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 10, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 11, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 12, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 13, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
+  { 'id': 14, 'poster': NftImg, 'title': 'ticket1', 'desc': 'quo optio et' },
 ]
 
 interface TicketData {
