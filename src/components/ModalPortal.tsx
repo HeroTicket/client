@@ -8,7 +8,6 @@ interface ModalProps {
   children: React.ReactNode;
 }
 
-
 const ModalPortal: React.FC<ModalProps> = ({ isOpen, children }) => {
   const router = useRouter();
   const isTicketPage = router.pathname === '/ticket';

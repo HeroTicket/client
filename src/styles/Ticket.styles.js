@@ -33,7 +33,7 @@ export const Card = styled.div`
     width: 0;
     border-bottom: 2px solid red;
     transition: width 0.5s ease; /* 애니메이션 효과 */
-    z-index: -1;
+    z-index: 1;
   }
 
   &:hover::after {
@@ -95,11 +95,46 @@ export const TicketBtn = styled(ButtonStyle)`
 `;
 
 export const ModalImageContainer = styled(CardImgContainer)`
-  width: 59%;
-  height: 50rem;
-
+  width: 45%;
+  height: 50vh;
+  position: relative;
   img {
-    padding-right: 2rem;
-    object-fit: contain;
+    object-fit: fill;
   }
+`;
+
+export const ModalRight = styled.div`
+  width: 50%;
+  height: 50vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  > div:first-child {
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    > div {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      h1 {
+        margin: 0;
+        font-size: 3rem;
+      }
+      p {
+        margin: 0;
+        font-size: 1rem;
+        color: #999;
+      }
+    }
+  }
+`;
+
+export const CalendarContainer = styled.div`
+  display: flex;
+  align-items: center;
 `;
