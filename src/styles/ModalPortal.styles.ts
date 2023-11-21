@@ -39,7 +39,7 @@ export const ModalContainer = styled.div<{isOpen: boolean, isTicketPage: boolean
 
   > div {
     max-width: ${(props) => (props.isTicketPage ? '60%' : '50%')};
-    max-height: ${(props) => (props.isTicketPage ? '600px' : '500px')};
+    max-height: ${(props) => (props.isTicketPage ? '1000px' : '500px')};
     overflow: scroll;
     display: flex;
     flex-direction: ${(props) => (props.isTicketPage ? 'row' : 'column')};

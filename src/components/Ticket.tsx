@@ -138,9 +138,20 @@ const Ticket = () => {
               //   <FontAwesomeIcon icon={faQrcode} className='qrcode' />
               //   <p>Scan the QR code to complete authentication.</p>
               // </T.QrcodeContainer>
-              <>
-                Payments
-              </>
+              <T.PurchaseContainer>
+                <T.ModalImageContainer className="purchaseImg">
+                  <Image src={selectedItem?.poster || DefaultImg} alt="poster" fill={true} quality={100}  />
+                </T.ModalImageContainer>
+                <T.PurchaseInfo>
+                  <p>{selectedItem?.title}</p>
+                  <p>{selectedItem?.desc}</p>
+                </T.PurchaseInfo>
+                <T.PurchasePrice>
+                  <p>Price</p>
+                  <p>0.2 Token</p>
+                </T.PurchasePrice>
+                <T.TicketBtn>PayMents</T.TicketBtn>
+              </T.PurchaseContainer>
             )}
           </T.PostNextStepContent>
           
