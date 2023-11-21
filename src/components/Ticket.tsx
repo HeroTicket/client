@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faQrcode } from '@fortawesome/free-solid-svg-icons';
 import { ModalPortal, DefaultImg } from './Common/Reference';
 import { Title } from '@/styles/styled';
 import 'react-calendar/dist/Calendar.css';
@@ -43,7 +45,7 @@ const Ticket = () => {
   const [selectedItem, setSelectedItem] = useState<TicketData | null>(null);
   const [value, setValue] = useState<Value>(new Date());
   const [isNextStepClicked, setIsNextStepClicked] = useState<boolean>(false);
-  const [isLargeModal, setIsLargeModal] = useState(true);
+  const [isPolygonBtn, setIsPolygonBtn] = useState<boolean>(false);
 
   const handleDateChange = (newValue: Value) => {
     setValue(newValue);
@@ -65,9 +67,9 @@ const Ticket = () => {
     document.body.style.overflow = "hidden";
   }
   const closeModal = () => {
-    setIsLargeModal(true);
     setIsModalOpen(false);
     setIsNextStepClicked(false);
+    setIsPolygonBtn(false);
     document.body.style.overflow = "unset";
     setTimeout(() => {
       setSelectedItem(null);
@@ -76,7 +78,6 @@ const Ticket = () => {
 
   const handleNextStepClick = () => {
     setIsNextStepClicked(true);
-    setIsLargeModal(false); // 모달 크기를 줄입니다
   }
 
   return (
@@ -100,9 +101,9 @@ const Ticket = () => {
           )
         })}
       </T.CardContainer>
-      <ModalPortal isOpen={isModalOpen} onClose={closeModal} isLarge={isLargeModal}>
+      <ModalPortal isOpen={isModalOpen} onClose={closeModal} isNextStepClicked={isNextStepClicked}>
         {!isNextStepClicked ? (
-          <>
+          <T.PreNextStepContent>
             <T.ModalImageContainer>
               <Image src={selectedItem?.poster || DefaultImg} alt="poster" fill={true} quality={100}  />
             </T.ModalImageContainer>
@@ -127,11 +128,22 @@ const Ticket = () => {
               </T.CalendarContainer>
               <T.TicketBtn onClick={handleNextStepClick}>Next Step</T.TicketBtn>
             </T.ModalRight>
-          </>
+          </T.PreNextStepContent>
         ) : (
-          <div>
-            <T.TicketBtn>Polygon ID authentication request</T.TicketBtn>
-          </div>
+          <T.PostNextStepContent>
+            {!isPolygonBtn ? (
+              <T.TicketBtn onClick={() => setIsPolygonBtn(true)}>Polygon ID authentication request</T.TicketBtn>
+            ) : (
+              // <T.QrcodeContainer>
+              //   <FontAwesomeIcon icon={faQrcode} className='qrcode' />
+              //   <p>Scan the QR code to complete authentication.</p>
+              // </T.QrcodeContainer>
+              <>
+                Payments
+              </>
+            )}
+          </T.PostNextStepContent>
+          
         )}
       </ModalPortal>
     </T.TicketContainer>

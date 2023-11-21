@@ -7,10 +7,10 @@ interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  isLarge: boolean;
+  isNextStepClicked: boolean;
 }
 
-const ModalPortal: React.FC<ModalProps> = ({ isOpen, onClose, children, isLarge }) => {
+const ModalPortal: React.FC<ModalProps> = ({ isOpen, onClose, children, isNextStepClicked }) => {
   const router = useRouter();
   const isTicketPage = router.pathname === '/ticket';
   const [visible, setVisible] = useState<boolean>(false);
@@ -34,7 +34,7 @@ const ModalPortal: React.FC<ModalProps> = ({ isOpen, onClose, children, isLarge 
   if (!isOpen) return null;
 
   return createPortal(
-    <ModalContainer isOpen={visible} isTicketPage={isTicketPage} isLarge={isLarge} onClick={handleBackgroundClick}>
+    <ModalContainer isOpen={visible} isTicketPage={isTicketPage} onClick={handleBackgroundClick} isNextStepClicked={isNextStepClicked}>
       <div onClick={handleContentClick}>
         {children}
       </div>
