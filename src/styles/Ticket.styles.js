@@ -107,7 +107,7 @@ export const CardContent = styled.div`
 `;
 
 export const TicketBtn = styled(ButtonStyle)`
-  width: 100%;
+  width: 90%;
   box-sizing: border-box;
   padding: 0.5rem 4rem;
 `;
@@ -125,6 +125,7 @@ export const ModalRight = styled.div`
   width: 50%;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: space-between;
   gap: 2em;
 
@@ -171,6 +172,11 @@ export const PreNextStepContent = styled.div`
 
 export const PostNextStepContent = styled.div`
   animation: ${fadeIn} 0.2s ease-in;
+  text-align: center;
+
+  > button {
+    width: 100%;
+  }
 `;
 
 export const QrcodeContainer = styled.div`
@@ -190,4 +196,45 @@ export const QrcodeContainer = styled.div`
     margin-bottom: 0;
     text-align: center;
   }
+`;
+
+export const PurchaseContainer = styled.div`
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .purchaseImg {
+    width: 100%;
+    height: 40vh;
+  }
+`;
+
+export const PurchaseInfo = styled(ModalRight)`
+  width: 90%;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #999;
+
+  > p:first-child {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0;
+  }
+
+  > p:last-child {
+    width: 80%;
+    white-space: pre-line;
+  }
+`;
+
+export const PurchasePrice = styled.div`
+  width: 90%;
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
 `;
