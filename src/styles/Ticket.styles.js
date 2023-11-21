@@ -1,5 +1,23 @@
-import styled from 'styled-components';
+import styled, { keyframes } from 'styled-components';
 import { Container, ButtonStyle } from './styled';
+
+const fadeIn = keyframes`
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+`;
+
+const fadeOut = keyframes`
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+`;
 
 export const TicketContainer = styled(Container)`
   height: auto;
@@ -95,20 +113,20 @@ export const TicketBtn = styled(ButtonStyle)`
 `;
 
 export const ModalImageContainer = styled(CardImgContainer)`
-  width: 45%;
-  height: 50vh;
+  width: 35%;
   position: relative;
+  align-items: center;
   img {
-    object-fit: fill;
+    object-fit: contain;
   }
 `;
 
 export const ModalRight = styled.div`
   width: 50%;
-  height: 50vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  gap: 2em;
 
   > div:first-child {
     min-height: 200px;
@@ -131,10 +149,45 @@ export const ModalRight = styled.div`
         color: #999;
       }
     }
+
+    > p {
+      width: 90%;
+    }
   }
 `;
 
 export const CalendarContainer = styled.div`
   display: flex;
   align-items: center;
+`;
+
+export const PreNextStepContent = styled.div`
+  animation: ${fadeIn} 0.2s ease-in;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+`;
+
+export const PostNextStepContent = styled.div`
+  animation: ${fadeIn} 0.2s ease-in;
+`;
+
+export const QrcodeContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  svg {
+    width: 50%;
+    font-size: 10rem;
+  }
+
+  > p {
+    width: 55%;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0;
+    text-align: center;
+  }
 `;
