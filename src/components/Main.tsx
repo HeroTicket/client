@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleDown } from '@fortawesome/free-solid-svg-icons';
 import { MainImg, NftImg, Security, Corruption, Decentralized, Did, Erc6551 } from './Common/Reference';
 import { ButtonStyle } from '@/styles/styled';
-import { MainWrap, ImageContainer, MainBtnWrap, MainLeft, ServiceWrap, ServiceCard, ServiceText, WhatIsWrap, WhatIsDesc } from '../styles/Main.styles';
+import * as M from '@/styles/Main.styles';
 
 
 const Main = () => {
@@ -74,8 +74,8 @@ const Main = () => {
 
   return (
     <>
-      <MainWrap>
-        <MainLeft>
+      <M.MainWrap>
+        <M.MainLeft>
           <h1>Lorem ipsum dolor sit amet.</h1>
           <p>
             Aliquam erat volutpat. Sed nec diam lorem. 
@@ -85,20 +85,20 @@ const Main = () => {
             Vivamus in ornare ante. Suspendisse ac libero vel felis tempus rutrum non iaculis magna. 
             Donec venenatis fermentum vehicula. 
           </p>
-          <MainBtnWrap>
+          <M.MainBtnWrap>
             <ButtonStyle>Get Start</ButtonStyle>
             <div onClick={scrollToService}>
               <p>Learn More</p>
               <FontAwesomeIcon icon={faAngleDown} />
             </div>
-          </MainBtnWrap>
-        </MainLeft>
-        <ImageContainer>
+          </M.MainBtnWrap>
+        </M.MainLeft>
+        <M.ImageContainer>
           <Image src={MainImg} alt='main' layout='responsive' width={800} height={720} quality={100} />
-        </ImageContainer>
-      </MainWrap>
-      <ServiceWrap ref={serviceRef} className='hidden'>
-        <ServiceText>
+        </M.ImageContainer>
+      </M.MainWrap>
+      <M.ServiceWrap ref={serviceRef} className='hidden'>
+        <M.ServiceText>
           <h1>Our Service</h1>
           <p>
             Aliquam quis maximus lorem. Etiam lacinia leo elit, ut pellentesque diam dictum eget. Nulla facilisi.
@@ -113,8 +113,8 @@ const Main = () => {
             Aenean mollis nisl et nibh facilisis, ut condimentum nulla pharetra. 
             Pellentesque venenatis ultricies congue.
           </p>
-        </ServiceText>
-        <ServiceCard>
+        </M.ServiceText>
+        <M.ServiceCard>
           <div>
             <Image src={Security} alt='security' width={100} height={100} />
             <p> 
@@ -143,13 +143,13 @@ const Main = () => {
               Totam optio ullam amet dolore iusto dolores accusamus numquam. Reiciendis impedit aliquam.
             </p>
           </div>
-        </ServiceCard>
-      </ServiceWrap>
-      <WhatIsWrap ref={whatIsRef} className='hidden'>
-        <ServiceText>
+        </M.ServiceCard>
+      </M.ServiceWrap>
+      <M.WhatIsWrap ref={whatIsRef} className='hidden'>
+        <M.ServiceText>
           <h1>What is ERC-6551, DID?</h1>
-        </ServiceText>
-        <WhatIsDesc>
+        </M.ServiceText>
+        <M.WhatIsDesc>
           <div>
             <Image src={Erc6551} alt='ERC-6551' width={500} height={300} quality={100} layout='responsive' />
             <h3>ERC-6551</h3>
@@ -169,8 +169,8 @@ const Main = () => {
               Pellentesque venenatis ultricies congue.
             </p>
           </div>
-        </WhatIsDesc>
-      </WhatIsWrap>
+        </M.WhatIsDesc>
+      </M.WhatIsWrap>
     </>
   )
 }

@@ -52,7 +52,7 @@ export const LoginBtn = styled.button`
   }
 `;
 
-export const QrCodeCOntainer = styled(QrcodeContainer)`
+export const QrCodeContainer = styled(QrcodeContainer)`
   > p {
     width: 100%;
   }
