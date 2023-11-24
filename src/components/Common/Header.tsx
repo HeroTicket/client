@@ -1,17 +1,31 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image'
 import Link from 'next/link';
-import logo from '@/assets/images/logo.png';
-import { Head, Menu, LoginBtn } from '@/styles/Header.styles';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faQrcode } from '@fortawesome/free-solid-svg-icons';
+import { Logo, ModalPortal} from './Reference';
+import * as H from '@/styles/Header.styles';
 
 const Header = () => {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
+  const openModal = () => {
+    setIsModalOpen(true);
+    document.body.style.overflow = "hidden";
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    document.body.style.overflow = "unset";
+  }
+
   return (
-    <Head>
+    <H.Head>
       <Link href='/'>
-        <Image src={logo} alt='logo' width={150} height={25} quality={100} />
+        <Image src={Logo} alt='logo' width={150} height={25} quality={100} />
       </Link>
       <div>
-        <Menu>
+        <H.Menu>
           <li>
             <Link href='/'>About us</Link>
           </li>
@@ -25,11 +39,17 @@ const Header = () => {
             <Link href='/faq'>FAQ</Link>
           </li>
           <li>
-            <LoginBtn>Login</LoginBtn>
+            <H.LoginBtn onClick={openModal}>Login</H.LoginBtn>
           </li>
-        </Menu>
+        </H.Menu>
+        <ModalPortal isOpen={isModalOpen} onClose={closeModal}>
+          <H.QrCodeCOntainer>
+            <FontAwesomeIcon icon={faQrcode} className='qrcode' />
+            <p>Please scan the QR code.</p>
+          </H.QrCodeCOntainer>
+        </ModalPortal>
       </div>
-    </Head>
+    </H.Head>
   )
 }
 
