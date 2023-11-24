@@ -1,5 +1,6 @@
 // Header.styles.js
 import styled from 'styled-components';
+import { QrcodeContainer } from './Ticket.styles';
 
 export const Head = styled.div`
   display: flex;
@@ -48,5 +49,11 @@ export const LoginBtn = styled.button`
   &:hover {
     background-color: #d71313;
     color: #fff;
+  }
+`;
+
+export const QrCodeCOntainer = styled(QrcodeContainer)`
+  > p {
+    width: 100%;
   }
 `;
