@@ -15,9 +15,8 @@ export const slideUp = keyframes`
 export const MainWrap = styled.div`
   animation: ${slideUp} 1s ease forwards;
   width: 100%;
-  height: calc(100vh - 15vh);
+  height: calc(100vh - 10vh);
   display: flex;
-  flex-wrap: wrap-reverse;
   align-items: center;
   justify-content: space-around;
   gap: 5rem;
@@ -33,6 +32,13 @@ export const ImageContainer = styled.div`
     border-radius: ${commonBorderRadius};
     box-shadow: ${commonBoxShadow};
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    img {
+      max-width: 500px;
+      max-height: 520px;
+    }
+  }
 `;
 
 export const MainLeft = styled.div`
@@ -47,6 +53,16 @@ export const MainLeft = styled.div`
   p {
     font-size: 1.3rem;
     margin-bottom: 5rem;
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    h1 {
+      font-size: 2.5rem;
+    }
+
+    p {
+      font-size: 0.8rem;
+    }
   }
 `;
 
@@ -80,7 +96,7 @@ export const MainBtnWrap = styled.div`
 `;
 
 export const ServiceWrap = styled.div`
-  height: calc(100vh - 15vh);
+  min-height: calc(100vh - 20vh);
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -101,10 +117,11 @@ export const ServiceText = styled.div`
 export const ServiceCard = styled.div`
   width: 90%;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
   justify-items: center;
   gap: 1rem;
   text-align: center;
+  background-color: #fff;
 
   div {
     width: 50%;
@@ -138,10 +155,20 @@ export const ServiceCard = styled.div`
       }
     }
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    width: 100%;
+    gap: 2.3rem;
+    margin-bottom: 5rem;
+    div {
+      width: 80%;
+      padding: 0.8rem 1.8rem;
+    }
+  }
 `;
 
 export const WhatIsWrap = styled.div`
-  height: calc(100vh - 20vh);
+  min-height: calc(100vh - 20vh);
   display: flex;
   flex-direction: column;
   justify-content: center;
