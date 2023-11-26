@@ -17,8 +17,7 @@ export const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  max-height: 100vh;
-  height: calc(100vh - 20vh);
+  min-height: calc(100vh - 20vh);
 `;
 
 export const Title = styled.div`
@@ -99,6 +98,11 @@ export const ButtonStyle = styled.button`
 
   &:hover {
     background-color: #d71313;
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.7rem;
   }
 `;
 

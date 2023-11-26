@@ -1,5 +1,6 @@
 // Header.styles.js
 import styled from 'styled-components';
+import { QrcodeContainer } from './Ticket.styles';
 
 export const Head = styled.div`
   display: flex;
@@ -31,6 +32,10 @@ export const Menu = styled.ul`
       }
     }
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    font-size: 0.9rem;
+  }
 `;
 
 export const LoginBtn = styled.button`
@@ -48,5 +53,16 @@ export const LoginBtn = styled.button`
   &:hover {
     background-color: #d71313;
     color: #fff;
+  }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    padding: 0.5rem 2rem;
+    font-size: 0.8rem;
+  }
+`;
+
+export const QrCodeContainer = styled(QrcodeContainer)`
+  > p {
+    width: 100%;
   }
 `;

@@ -19,7 +19,7 @@ const fadeOut = keyframes`
 `;
 
 
-export const ModalContainer = styled.div<{isOpen: boolean, isTicketPage: boolean, isLarge: boolean}>`
+export const ModalContainer = styled.div<{isOpen: boolean, isTicketPage: boolean, isNextStepClicked: boolean}>`
   width: 100%;
   height: 100%;
   position: fixed;
@@ -38,8 +38,8 @@ export const ModalContainer = styled.div<{isOpen: boolean, isTicketPage: boolean
   transition: visibility 0.2s ease-out;
 
   > div {
-    max-width: ${(props) => (props.isLarge ? '60%' : '50%')};
-    max-height: ${(props) => (props.isLarge ? '1000px' : '500px')};
+    max-width: ${(props) => (props.isTicketPage ? '60%' : '50%')};
+    max-height: ${(props) => (props.isTicketPage ? '1000px' : '500px')};
     overflow: scroll;
     display: flex;
     flex-direction: ${(props) => (props.isTicketPage ? 'row' : 'column')};
@@ -47,10 +47,9 @@ export const ModalContainer = styled.div<{isOpen: boolean, isTicketPage: boolean
     justify-content: ${(props) => (props.isTicketPage && 'center')};
     gap: ${(props) => (props.isTicketPage && '3rem')};
     padding: 2rem;
-    box-sizing: border-box;
     border-radius: 1rem;
     background-color: #fff;
-    transition: width 0.3s ease-in-out, height 0.3s ease-in-out;
+    transition: max-width 0.3s ease-in-out, padding 0.3s ease-in-out;
   }
 `;
 
