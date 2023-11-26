@@ -44,7 +44,7 @@ const MyPage = () => {
           <Image src={MainImg} layout='responsive' width={800} height={720} quality={100} alt='profile image' />
         </M.MyPageImageContainer>
         <M.InfoContainer>
-          <p title='Click to copy the address'>{address.slice(0, 9) + '...' + address.slice(38, address.length)}</p>
+          <p title='Click to copy the address'>{address.slice(0, 7) + '...' + address.slice(38, address.length)}</p>
           <div></div>
           <p>{email}</p>
         </M.InfoContainer>

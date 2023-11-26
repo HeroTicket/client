@@ -30,7 +30,7 @@ export const CardContainer = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
   justify-items: center;
   gap: 4rem;
-  padding: 1rem;
+  padding: 2rem;
 `;
 
 export const Card = styled.div`

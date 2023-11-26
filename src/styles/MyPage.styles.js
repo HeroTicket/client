@@ -12,6 +12,7 @@ export const ProfileContainer = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 1rem;
 `;
 
 export const MyPageImageContainer = styled(ImageContainer)`
@@ -44,7 +45,7 @@ export const InfoContainer = styled.div`
 
   > div {
     width: 2px;
-    height: 50%; /* 선의 높이 */
+    height: 30px; /* 선의 높이 */
     background-color: black; /* 선의 색상 */
     margin: 10px 0; /* 상하 여백 */
   }
