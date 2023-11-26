@@ -100,6 +100,11 @@ export const ButtonStyle = styled.button`
   &:hover {
     background-color: #d71313;
   }
+
+  @media (max-width: ${(props) => props.theme.breakpoints.tablet}) {
+    padding: 0.5rem 1.5rem;
+    font-size: 0.7rem;
+  }
 `;
 
 export const ModalCloseBtn = styled.button`
