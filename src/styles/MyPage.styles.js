@@ -62,9 +62,9 @@ export const TabButton = styled.button`
   padding: 10px 20px;
   border: none;
   background: none;
-  border-bottom: 2px solid transparent;
   font-size: 1.2rem;
   cursor: pointer;
+  transition: all 0.3s;
   &.active {
     font-weight: bold;
   }

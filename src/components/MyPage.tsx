@@ -23,6 +23,14 @@ const dummyData = [
   { 'id': 16, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231012031758_23014405.gif', 'owner': 'in', 'place': 'in', 'title': 'quo optio et', 'desc': 'Et qui consequatur.' },
 ]
 
+const dummyData2 = [
+  { 'id': 12, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2311/231116113220_23016762.gif', 'owner': 'alias', 'place': 'doloribus', 'title': 'quo optio et', 'desc': 'Saepe tempora quibusdam asperiores velit neque pariatur ut perferendis.' },
+  { 'id': 13, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2309/230920091152_23013281.gif', 'owner': 'nulla', 'place': 'nihil', 'title': 'quo optio et', 'desc': 'Dolor est totam dolor et maiores in.' },
+  { 'id': 14, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2309/230921024652_23013309.gif', 'owner': 'sit', 'place': 'omnis', 'title': 'quo optio et', 'desc': 'Assumenda facere nobis quae laborum corporis nihil autem sed maiores.' },
+  { 'id': 15, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231031095904_23015513.gif', 'owner': 'harum', 'place': 'quae', 'title': 'quo optio et', 'desc': 'Dolorem ipsa recusandae consequuntur non eligendi eos eum saepe ea.' },
+  { 'id': 16, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231012031758_23014405.gif', 'owner': 'in', 'place': 'in', 'title': 'quo optio et', 'desc': 'Et qui consequatur.' },
+]
+
 const MyPage = () => {
   let address = '0x3557db220dbfdBbB8Cf5489495Bf02AAC9A889ED';
   let email = 'user@gmail.com';
@@ -72,7 +80,7 @@ const MyPage = () => {
         </T.CardContainer>
       ) : (
         <T.CardContainer>
-          {dummyData.map(card => (
+          {dummyData2.map(card => (
             <T.Card key={card.id}>
               <T.CardImgContainer>
                 <Image src={card.poster} alt="poster" fill quality={100}  />
