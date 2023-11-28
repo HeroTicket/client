@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
 import QRCode from "react-qr-code";
-import * as H from '@/styles/Header.styles';
 import axios from "axios";
+import * as P from '@/styles/PolygonID.styles';
+import * as H from '@/styles/Header.styles';
 
 interface PolygonIDProps {
   accountAddress?: string;

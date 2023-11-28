@@ -1,10 +1,9 @@
 import React, { useState, useRef } from 'react';
 import Image from 'next/image'
 import Link from 'next/link';
-import axios from 'axios';
 import { ConnectButton, } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
-import PolygonIDVerifier from '../PolygonIDVerifier';
+import PolygonIDVerifier from '@/components/PolygonIDVerifier';
 import { Logo, ModalPortal} from './Reference';
 import * as H from '@/styles/Header.styles';
 
@@ -51,106 +50,91 @@ const Header = () => {
           <li>
             {isConnected ? (
               <ConnectButton.Custom>
-              {({
-                account,
-                chain,
-                openAccountModal,
-                openChainModal,
-                openConnectModal,
-                authenticationStatus,
-                mounted,
-              }) => {
-                // Note: If your app doesn't use authentication, you
-                // can remove all 'authenticationStatus' checks
-                const ready = mounted && authenticationStatus !== 'loading';
-                const connected =
-                  ready &&
-                  account &&
-                  chain &&
-                  (!authenticationStatus || authenticationStatus === 'authenticated');
-      
-                return (
-                  <div
-                    {...(!ready && {
-                      'aria-hidden': true,
-                      style: {
-                        opacity: 0,
-                        pointerEvents: 'none',
-                        userSelect: 'none',
-                      },
-                    })}
-                  >
-                    {(() => {
-                      if (!connected) {
-                        return (
-                          <button
-                            onClick={openConnectModal}
-                            type='button'
-                            className='px-4 py-2 border border-gray-300 rounded-xl shadow-sm'
-                          >
-                            Connect Wallet
-                          </button>
-                        );
-                      }
-      
-                      if (chain.unsupported) {
-                        return (
-                          <button
-                            onClick={openChainModal}
-                            type='button'
-                            className='px-4 py-2 border border-gray-300 rounded-xl shadow-sm'
-                          >
-                            Wrong network
-                          </button>
-                        );
-                      }
-      
-                      return (
-                        <div style={{ display: 'flex', gap: 12 }}>
-                          <button
-                            onClick={openChainModal}
-                            style={{ display: 'flex', alignItems: 'center', backgroundColor: 'transparent', border: 'none' }}
-                            type='button'
-                            className='px-4 border-2 font-bold border-gray-500 rounded-xl shadow-sm'
-                          >
-                            {chain.hasIcon && (
-                              <div
-                                style={{
-                                  background: chain.iconBackground,
-                                  borderRadius: 999,
-                                  overflow: 'hidden',
-                                }}
-                              >
-                                {chain.iconUrl && (
-                                  <img
-                                    alt={chain.name ?? 'Chain icon'}
-                                    src={chain.iconUrl}
-                                  />
-                                )}
-                              </div>
-                            )}
-                          </button>
-                          <div className='relative' ref={dropdownRef}>
-                            <button
-                              onClick={toggleDropdown}
+                {({
+                  account,
+                  chain,
+                  openAccountModal,
+                  openChainModal,
+                  openConnectModal,
+                  authenticationStatus,
+                  mounted,
+                }) => {
+                  // Note: If your app doesn't use authentication, you
+                  // can remove all 'authenticationStatus' checks
+                  const ready = mounted && authenticationStatus !== 'loading';
+                  const connected =
+                    ready &&
+                    account &&
+                    chain &&
+                    (!authenticationStatus || authenticationStatus === 'authenticated');
+        
+                  return (
+                    <div
+                      {...(!ready && {
+                        'aria-hidden': true,
+                        style: {
+                          opacity: 0,
+                          pointerEvents: 'none',
+                          userSelect: 'none',
+                        },
+                      })}
+                    >
+                      {(() => {
+                        if (!connected) {
+                          return (
+                            <H.StyledButton
+                              onClick={openConnectModal}
                               type='button'
-                              id='dropdown-menu-button'
-                              style={{ backgroundColor: 'transparent', border: 'none'}}
-                              aria-expanded={isOpen ? 'true' : 'false'}
-                              aria-haspopup='true'
+                              className='px-4 py-2 border border-gray-300 rounded-xl shadow-sm'
                             >
-                              <div className='mr-4'>
-                                {account.displayName}
-                              </div>
+                              Connect Wallet
+                            </H.StyledButton>
+                          );
+                        }
+        
+                        if (chain.unsupported) {
+                          return (
+                            <button
+                              onClick={openChainModal}
+                              type='button'
+                              className='px-4 py-2 border border-gray-300 rounded-xl shadow-sm'
+                            >
+                              Wrong network
                             </button>
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                );
-              }}
-            </ConnectButton.Custom>
+                          );
+                        }
+        
+                        return (
+                          <H.ProfileContainer>
+                            <H.ChainButton onClick={openChainModal} type='button'>
+                              {chain.hasIcon && (
+                                <H.ChainIconContainer>
+                                  {chain.iconUrl && (
+                                    <Image src={chain.iconUrl} alt={chain.name ?? 'Chain icon'} layout='responsive' width={500} height={500} quality={100}/>
+                                  )}
+                                </H.ChainIconContainer>
+                              )}
+                            </H.ChainButton>
+                            <H.DropdownButtonContainer ref={dropdownRef}>
+                              <H.ProfileButton onClick={toggleDropdown} type='button'>
+                                {account.displayName}
+                              </H.ProfileButton>
+                              {isOpen && (
+                                <H.DropdownContainer>
+                                  <Link href={`/mypage`}>
+                                    MyPage
+                                  </Link>
+                                  <span onClick={openAccountModal}>Disconnect</span>
+                                </H.DropdownContainer>
+                              )}
+                            </H.DropdownButtonContainer>
+                          </H.ProfileContainer>
+                        );
+                      })()}
+                    </div>
+                  );
+                }}
+              </ConnectButton.Custom>
             ) : (
               <H.LoginBtn onClick={openModal}>Login</H.LoginBtn>
             )}
