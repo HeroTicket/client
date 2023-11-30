@@ -143,17 +143,21 @@ const Header = () => {
             )}
           </li>
         </H.Menu>
-        <ModalPortal isOpen={isModalOpen} onClose={closeModal}>
-          {authenticated ? (
-            <ConnectButton />
-          ) : (
-            <PolygonIDVerifier
-              accountAddress={isConnected ? address : ''}
-              credentialType={"Authorization"}
-              onVerificationResult={setAuthenticated}
-            />
-          )}
-        </ModalPortal>
+        {isConnected ? (
+          null
+        ) : (
+          <ModalPortal isOpen={isModalOpen} onClose={closeModal}>
+            {authenticated ? (
+              <ConnectButton />
+            ) : (
+              <PolygonIDVerifier
+                accountAddress={isConnected ? address : ''}
+                credentialType={"Authorization"}
+                onVerificationResult={setAuthenticated}
+              />
+            )}
+          </ModalPortal>
+        )}
       </div>
     </H.Head>
   )
