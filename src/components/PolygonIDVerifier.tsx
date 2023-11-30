@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
 import QRCode from "react-qr-code";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import * as P from '@/styles/PolygonID.styles';
 import * as H from '@/styles/Header.styles';
+import Link from "next/link";
 
 interface PolygonIDProps {
   accountAddress?: string;
@@ -46,6 +49,8 @@ const PolygonIDVerifier = ({
     useState<boolean>(false);
   const [verificationMessage, setVerificationMessage] = useState<string>("");
   const [socketEvents, setSocketEvents] = useState<SocketEvent[]>([]);
+  const linkDownloadPolygonIDWalletApp = "https://0xpolygonid.github.io/tutorials/wallet/wallet-overview/#quick-start";
+  const issuerOrHowToLink = "https://oceans404.notion.site/How-to-get-a-Verifiable-Credential-f3d34e7c98ec4147b6b2fae79066c4f6?pvs=4";
 
   const socket = useRef<WebSocket | null>(null);
 
@@ -121,6 +126,7 @@ const PolygonIDVerifier = ({
           setIsHandlingVerification(false);
           setVerificationCheckComplete(true);
           if (currentSocketEvent.status === 'DONE') {
+            setVerificationMessage("✅ Verified proof");
             const jwtTokenPair = currentSocketEvent.data;
             sessionStorage.setItem('jwtToken', JSON.stringify(jwtTokenPair));
   
@@ -130,6 +136,8 @@ const PolygonIDVerifier = ({
               reportVerificationResult(true);
             }, 2000);
             socket.current?.close();
+          } else {
+            setVerificationMessage("❌ Error verifying VC");
           }
         }
       }
@@ -179,39 +187,48 @@ const PolygonIDVerifier = ({
 
   return (
     <>
-      <H.QrCodeContainer>
-        Scan this QR code from your Polygon ID Wallet App to prove access rights.
+      <P.QRCodeContainer>
+        <p>Scan this QR code from your Polygon ID Wallet App to prove access rights.</p>
         {isHandlingVerification && (
           <div>
             <p>Authenticating...</p>
-            {/* <Spinner size={"xl"} colorScheme="purple" my={2} /> */}
+            <P.StyledSpinner viewBox="0 0 50 50">
+              <circle 
+                className="path"
+                cx={25}
+                cy={25}
+                r={20}
+                fill="none"
+                strokeWidth={4}
+              />
+            </P.StyledSpinner>
           </div>
         )}
-        {verificationMessage}
+        {verificationMessage &&
+          <P.LoginCallbackMessage>
+            {verificationMessage}
+          </P.LoginCallbackMessage>
+        }
         {qrCodeData &&
           !isHandlingVerification &&
           !verificationCheckComplete && (
-            // <Center marginBottom={1}>
-              <QRCode value={JSON.stringify(qrCodeData)} />
-            // </Center>
+            <QRCode value={JSON.stringify(qrCodeData)} />
           )}
-
-        {qrCodeData?.body?.scope[0]?.query && (
-          <p>Type: {qrCodeData?.body?.scope[0].query.type}</p>
-        )}
-
-        {qrCodeData?.body?.message && <p>{qrCodeData?.body.message}</p>}
-
-        {qrCodeData?.body?.reason && (
-          <p>Reason: {qrCodeData?.body.reason}</p>
-        )}
-        <button>
-          Download the Polygon ID Wallet App
-        </button>
-        <button>
-          Get a {credentialType} VC
-        </button>
-      </H.QrCodeContainer>
+        <P.ButtonContainer>
+          <button>
+            <Link href={linkDownloadPolygonIDWalletApp} target="_blank">
+              Download the Polygon ID Wallet App
+              <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
+            </Link>
+          </button>
+          <button>
+            <Link href={issuerOrHowToLink} target="_blank">
+              Get a {credentialType} VC
+              <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
+            </Link>
+          </button>
+        </P.ButtonContainer>
+      </P.QRCodeContainer>
     </>
   );
 }
