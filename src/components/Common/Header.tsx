@@ -124,7 +124,7 @@ const Header = () => {
                                   <Link href={`/mypage`}>
                                     MyPage
                                   </Link>
-                                  <Link href={`/mypage`}>
+                                  <Link href={`/create`}>
                                     Create Ticket
                                   </Link>
                                   <span onClick={openAccountModal}>Disconnect</span>

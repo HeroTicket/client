@@ -33,7 +33,6 @@ const dummyData2 = [
 
 const MyPage = () => {
   let address = '0x3557db220dbfdBbB8Cf5489495Bf02AAC9A889ED';
-  let email = 'user@gmail.com';
 
   const [activeTab, setActiveTab] = React.useState('purchased');
 
