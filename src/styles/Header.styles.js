@@ -115,7 +115,9 @@ export const DropdownContainer = styled.div`
   flex-direction: column;
   gap: 1rem;
   font-size: 1.1rem;
-  border: 1px solid;
+  border: 1px solid #000;
+  border-radius: 1rem;
+  padding: 1rem 0.5rem;
   opacity: 0;
   visibility: hidden;
   transform: translateY(-10px);
@@ -131,10 +133,6 @@ export const DropdownContainer = styled.div`
     text-decoration: none;
     transition: all 0.3s;
     color: #000;
-
-    &:first-child {
-      margin-top: 0.9rem;
-    }
 
     &:hover {
       color: red;
