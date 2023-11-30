@@ -54,10 +54,8 @@ const PolygonIDVerifier = ({
 
   const socket = useRef<WebSocket | null>(null);
 
-  const serverUrl = "https://api.heroticket.xyz";
-
   const getQrCodeApi = (sessionId: string) => {
-    return serverUrl + `/v1/users/login-qr?sessionId=${sessionId}`;
+    return process.env.NEXT_PUBLIC_SERVER_URL + `/users/login-qr?sessionId=${sessionId}`;
   }
 
   // Connect to websocket on component mount
@@ -146,7 +144,7 @@ const PolygonIDVerifier = ({
 
   const fetchUserInfo = async (accessToken: string, accountAddress: string) => {
     try {
-      const response = await axios.get(`${serverUrl}/v1/users/info`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/info`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -169,7 +167,7 @@ const PolygonIDVerifier = ({
 
   const registerUser = async (accessToken: string, accountAddress: string) => {
     try {
-      const res = await axios.post(`${serverUrl}/v1/users/register/${accountAddress}`, {}, {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/register/${accountAddress}`, {}, {
         headers: {
           Authorization: `Bearer ${accessToken}`
         }
