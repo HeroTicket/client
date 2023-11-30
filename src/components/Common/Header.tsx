@@ -1,17 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Image from 'next/image'
 import Link from 'next/link';
-import axios from 'axios';
-import { useAccount} from 'wagmi';
 import { ConnectButton, } from '@rainbow-me/rainbowkit';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faQrcode } from '@fortawesome/free-solid-svg-icons';
+import { useAccount } from 'wagmi';
+import PolygonIDVerifier from '@/components/PolygonIDVerifier';
 import { Logo, ModalPortal} from './Reference';
 import * as H from '@/styles/Header.styles';
 
 const Header = () => {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const { isConnected } = useAccount();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
+  const { address, isConnected } = useAccount();
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<any>(null);
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -43,29 +48,116 @@ const Header = () => {
             <Link href='/faq'>FAQ</Link>
           </li>
           <li>
-            {
-              isConnected ?
-                <ConnectButton 
-                  chainStatus='icon'
-                  showBalance={false}
-                />
-              :
-                <H.LoginBtn onClick={openModal}>Login</H.LoginBtn>
-            }
-            
+            {isConnected ? (
+              <ConnectButton.Custom>
+                {({
+                  account,
+                  chain,
+                  openAccountModal,
+                  openChainModal,
+                  openConnectModal,
+                  authenticationStatus,
+                  mounted,
+                }) => {
+                  // Note: If your app doesn't use authentication, you
+                  // can remove all 'authenticationStatus' checks
+                  const ready = mounted && authenticationStatus !== 'loading';
+                  const connected =
+                    ready &&
+                    account &&
+                    chain &&
+                    (!authenticationStatus || authenticationStatus === 'authenticated');
+        
+                  return (
+                    <div
+                      {...(!ready && {
+                        'aria-hidden': true,
+                        style: {
+                          opacity: 0,
+                          pointerEvents: 'none',
+                          userSelect: 'none',
+                        },
+                      })}
+                    >
+                      {(() => {
+                        if (!connected) {
+                          return (
+                            <H.StyledButton
+                              onClick={openConnectModal}
+                              type='button'
+                              className='px-4 py-2 border border-gray-300 rounded-xl shadow-sm'
+                            >
+                              Connect Wallet
+                            </H.StyledButton>
+                          );
+                        }
+        
+                        if (chain.unsupported) {
+                          return (
+                            <button
+                              onClick={openChainModal}
+                              type='button'
+                              className='px-4 py-2 border border-gray-300 rounded-xl shadow-sm'
+                            >
+                              Wrong network
+                            </button>
+                          );
+                        }
+        
+                        return (
+                          <H.ProfileContainer>
+                            <H.ChainButton onClick={openChainModal} type='button'>
+                              {chain.hasIcon && (
+                                <H.ChainIconContainer>
+                                  {chain.iconUrl && (
+                                    <Image src={chain.iconUrl} alt={chain.name ?? 'Chain icon'} layout='responsive' width={500} height={500} quality={100}/>
+                                  )}
+                                </H.ChainIconContainer>
+                              )}
+                            </H.ChainButton>
+                            <H.DropdownButtonContainer ref={dropdownRef}>
+                              <H.ProfileButton onClick={toggleDropdown} type='button'>
+                                {account.displayName}
+                              </H.ProfileButton>
+                              {isOpen && (
+                                <H.DropdownContainer className={isOpen ? 'open' : ''}>
+                                  <Link href={`/mypage`}>
+                                    MyPage
+                                  </Link>
+                                  <Link href={`/mypage`}>
+                                    Create Ticket
+                                  </Link>
+                                  <span onClick={openAccountModal}>Disconnect</span>
+                                </H.DropdownContainer>
+                              )}
+                            </H.DropdownButtonContainer>
+                          </H.ProfileContainer>
+                        );
+                      })()}
+                    </div>
+                  );
+                }}
+              </ConnectButton.Custom>
+            ) : (
+              <H.LoginBtn onClick={openModal}>Login</H.LoginBtn>
+            )}
           </li>
         </H.Menu>
-        <ModalPortal isOpen={isModalOpen} onClose={closeModal}>
-          <H.QrCodeContainer>
-            <iframe src='https://issuer-ui.polygonid.me/credentials/scan-issued/94c98e75-8aac-11ee-b330-0242ac120008' style={{ 
-              width: '500px', 
-              height: '500px', 
-              overflow: 'hidden', 
-              // marginTop: '-100px', // 상단의 특정 부분을 숨김
-            }} />
-            <ConnectButton />
-          </H.QrCodeContainer>
-        </ModalPortal>
+        {isConnected ? (
+          null
+        ) : (
+          <ModalPortal isOpen={isModalOpen} onClose={closeModal}>
+            {authenticated ? (
+              <ConnectButton />
+            ) : (
+              <PolygonIDVerifier
+                accountAddress={isConnected ? address : ''}
+                credentialType={"Authorization"}
+                onVerificationResult={setAuthenticated}
+              />
+            )}
+          </ModalPortal>
+        )}
       </div>
     </H.Head>
   )
