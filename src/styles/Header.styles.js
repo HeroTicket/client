@@ -114,12 +114,28 @@ export const DropdownContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  font-size: 1.1rem;
+  border: 1px solid;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease, visibility 0.3s;
+
+  &.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
 
   > a {
-    margin-top: 0.5rem;
     text-decoration: none;
     transition: all 0.3s;
     color: #000;
+
+    &:first-child {
+      margin-top: 0.9rem;
+    }
+
     &:hover {
       color: red;
     }
@@ -128,6 +144,7 @@ export const DropdownContainer = styled.div`
   > span {
     transition: all 0.3s;
     cursor: pointer;
+
     &:hover {
       color: red;
     }

@@ -120,9 +120,12 @@ const Header = () => {
                                 {account.displayName}
                               </H.ProfileButton>
                               {isOpen && (
-                                <H.DropdownContainer>
+                                <H.DropdownContainer className={isOpen ? 'open' : ''}>
                                   <Link href={`/mypage`}>
                                     MyPage
+                                  </Link>
+                                  <Link href={`/mypage`}>
+                                    Create Ticket
                                   </Link>
                                   <span onClick={openAccountModal}>Disconnect</span>
                                 </H.DropdownContainer>
