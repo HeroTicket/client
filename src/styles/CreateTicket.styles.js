@@ -6,15 +6,27 @@ export const FormContainer = styled.form`
   align-items: center;
   justify-content: center;
   gap: 2rem;
+  padding: 1rem 2rem;
+  overflow: scroll;
 
   input {
     width: 100%;
     border: none;
-    border-bottom: 1px solid #999;
+    border-bottom: 2px solid #999;
     outline: none;
+    margin-top: 1.5rem;
+    font-size: 1rem;
 
     &:focus {
-      border-bottom: 1px solid #000;
+      border-bottom: 2px solid #000;
+    }
+  }
+
+  label {
+    font-size: 1.2rem;
+    font-weight: bold;
+    span {
+      color: red;
     }
   }
 `;
@@ -58,10 +70,29 @@ export const CreateImageContainer = styled.div`
   }
 `;
 
+export const InputWrap = styled.div`
+  width: 80%;
+`;
+
 export const InputContainer = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 1rem;
+  justify-content: space-around;
+  gap: 4rem;
+  margin: 2rem 0;
+
+  > div {
+    width: 100%;
+  }
+`;
+
+export const TextContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  textarea {
+    height: 300px;
+  }
 `;
