@@ -2,11 +2,39 @@ import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image'
 import Link from 'next/link';
 import axios, { AxiosError } from 'axios';
-import { ConnectButton, } from '@rainbow-me/rainbowkit';
+import { useQuery, useMutation } from 'react-query';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import PolygonIDVerifier from '@/components/PolygonIDVerifier';
 import { Logo, ModalPortal} from './Reference';
 import * as H from '@/styles/Header.styles';
+
+interface UserInfo {
+  // 사용자 정보 타입 정의
+}
+
+interface UserRegistrationResponse {
+  // 사용자 등록 응답 타입 정의
+}
+
+const fetchUserInfo = async (accessToken: string, address: string): Promise<UserInfo> => {
+  const response = await axios.get<UserInfo>(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/info`, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return response.data;
+};
+
+const registerUser = async (accessToken: string, address: string): Promise<UserRegistrationResponse> => {
+  const res = await axios.post<UserRegistrationResponse>(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/register/${address}`, {}, {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+  return res.data;
+};
+
 
 const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,68 +59,59 @@ const Header = () => {
 
   let accessToken: string = '';
 
-const jwtToken = sessionStorage.getItem('jwtToken');
+  const jwtToken = sessionStorage.getItem('jwtToken');
 
-if (jwtToken) {
-  try {
-    const parsedToken = JSON.parse(jwtToken);
-    if (parsedToken && parsedToken.accessToken && typeof parsedToken.accessToken === 'string') {
-      accessToken = parsedToken.accessToken;
-    }
-  } catch (error) {
-    console.error('Parsing jwtToken failed', error);
-  }
-}
-
-  const fetchUserInfo = async (accessToken: string, address: string) => {
+  if (jwtToken) {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/info`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-      if (response.status === 404) {
-        console.log('error', response.status)
-      } else {
-        const userInfo = response.data;
-        console.log(userInfo);
+      const parsedToken = JSON.parse(jwtToken);
+      if (parsedToken && parsedToken.accessToken && typeof parsedToken.accessToken === 'string') {
+        accessToken = parsedToken.accessToken;
       }
-
-    } catch (e) {
-      console.log('Error fetching user info:', e);
-      const err = e as AxiosError;
-      if (err?.response && err?.response.status === 404) {
-        await registerUser(accessToken, address);
-      }
-    }
-  }
-
-  const registerUser = async (accessToken: string, address: string) => {
-    console.log(accessToken, address);
-    try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/register/${address}`, {}, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`
-        }
-      });
-      console.log('User registered:', res.data); // 사용자 등록 성공 응답 처리
     } catch (error) {
-      console.error('Error registering user:', error);
+      console.error('Parsing jwtToken failed', error);
     }
-  };
+  }
+
+  const userInfoQuery = useQuery<UserInfo, AxiosError>(
+    ['userInfo', accessToken, address],
+    () => {
+      // accessToken과 address가 유효한지 확인
+      if (!accessToken || !address) {
+        throw new Error("Missing accessToken or address");
+      }
+      return fetchUserInfo(accessToken, address);
+    },
+    {
+      // accessToken과 address가 모두 있는 경우에만 쿼리 활성화
+      enabled: !!accessToken && !!address,
+    },
+  );
+
+  const registerMutation = useMutation<UserRegistrationResponse, AxiosError, void>(
+    () => {
+      if (!accessToken || !address) {
+        throw new Error("Missing accessToken or address");
+      }
+      return registerUser(accessToken, address);
+    },
+    {
+      onSuccess: (data) => {
+        console.log('User registered:', data);
+        localStorage.setItem('userRegistered', 'true');
+      },
+      onError: (error) => {
+        console.error('Error registering user:', error);
+      },
+    },
+  );
 
   useEffect(() => {
-    if (authenticated && address) {
-      fetchUserInfo(accessToken, address);
-    }
-  }, [authenticated]);
+    const isRegistered = localStorage.getItem('userRegistered');
 
-  useEffect(() => {
-    if (isConnected && address) {
-      registerUser(accessToken, address);
+    if (isConnected && address && !isRegistered) {
+      registerMutation.mutate();
     }
-  }, [isConnected]);
+  }, [isConnected, address, accessToken, registerMutation]);
 
   return (
     <H.Head>
@@ -217,7 +236,6 @@ if (jwtToken) {
               <ConnectButton />
             ) : (
               <PolygonIDVerifier
-                connected={isConnected}
                 accountAddress={isConnected ? address : ''}
                 credentialType={"Authorization"}
                 onVerificationResult={setAuthenticated}
