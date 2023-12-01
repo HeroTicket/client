@@ -34,7 +34,7 @@ export default function App({ Component, pageProps }: AppProps) {
     });
     
         // 새 accessToken으로 jwtToken 업데이트
-        const updatedTokenData = response.data;
+        const updatedTokenData = response.data.data;
     
         // 업데이트된 jwtToken을 sessionStorage에 저장
         sessionStorage.setItem('jwtToken', JSON.stringify(updatedTokenData));
@@ -45,8 +45,8 @@ export default function App({ Component, pageProps }: AppProps) {
     };
 
     // 10분(600000밀리초)마다 리프레시 토큰 요청
-    // const intervalId = setInterval(refreshAccessToken, 10 * 60 * 1000);
-    const intervalId = setInterval(refreshAccessToken, 10 * 1000);
+    const intervalId = setInterval(refreshAccessToken, 10 * 60 * 1000);
+    // const intervalId = setInterval(refreshAccessToken, 10 * 1000);
 
     // 컴포넌트가 언마운트될 때 인터벌 정리
     return () => clearInterval(intervalId);
