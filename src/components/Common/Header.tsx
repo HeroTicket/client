@@ -1,6 +1,7 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image'
 import Link from 'next/link';
+import axios, { AxiosError } from 'axios';
 import { ConnectButton, } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import PolygonIDVerifier from '@/components/PolygonIDVerifier';
@@ -10,9 +11,9 @@ import * as H from '@/styles/Header.styles';
 const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
-  const { address, isConnected } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<any>(null);
+  const { address, isConnected } = useAccount();
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -27,6 +28,71 @@ const Header = () => {
     setIsModalOpen(false);
     document.body.style.overflow = "unset";
   }
+
+  let accessToken: string = '';
+
+const jwtToken = sessionStorage.getItem('jwtToken');
+
+if (jwtToken) {
+  try {
+    const parsedToken = JSON.parse(jwtToken);
+    if (parsedToken && parsedToken.accessToken && typeof parsedToken.accessToken === 'string') {
+      accessToken = parsedToken.accessToken;
+    }
+  } catch (error) {
+    console.error('Parsing jwtToken failed', error);
+  }
+}
+
+  const fetchUserInfo = async (accessToken: string, address: string) => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/info`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      if (response.status === 404) {
+        console.log('error', response.status)
+      } else {
+        const userInfo = response.data;
+        console.log(userInfo);
+      }
+
+    } catch (e) {
+      console.log('Error fetching user info:', e);
+      const err = e as AxiosError;
+      if (err?.response && err?.response.status === 404) {
+        await registerUser(accessToken, address);
+      }
+    }
+  }
+
+  const registerUser = async (accessToken: string, address: string) => {
+    console.log(accessToken, address);
+    try {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/register/${address}`, {}, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      });
+      console.log('User registered:', res.data); // 사용자 등록 성공 응답 처리
+    } catch (error) {
+      console.error('Error registering user:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (authenticated && address) {
+      fetchUserInfo(accessToken, address);
+    }
+  }, [authenticated]);
+
+  useEffect(() => {
+    if (isConnected && address) {
+      registerUser(accessToken, address);
+    }
+  }, [isConnected]);
 
   return (
     <H.Head>
@@ -151,6 +217,7 @@ const Header = () => {
               <ConnectButton />
             ) : (
               <PolygonIDVerifier
+                connected={isConnected}
                 accountAddress={isConnected ? address : ''}
                 credentialType={"Authorization"}
                 onVerificationResult={setAuthenticated}
