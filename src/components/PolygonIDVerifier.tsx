@@ -7,7 +7,6 @@ import * as P from '@/styles/PolygonID.styles';
 import Link from "next/link";
 
 interface PolygonIDProps {
-  connected: boolean;
   accountAddress?: string ;
   credentialType: string;
   onVerificationResult: Dispatch<SetStateAction<boolean>>;
@@ -38,7 +37,6 @@ interface SocketEvent {
 }
 
 const PolygonIDVerifier = ({
-  connected,
   accountAddress,
   credentialType,
   onVerificationResult,
@@ -54,8 +52,6 @@ const PolygonIDVerifier = ({
   const issuerOrHowToLink = "https://oceans404.notion.site/How-to-get-a-Verifiable-Credential-f3d34e7c98ec4147b6b2fae79066c4f6?pvs=4";
 
   const socket = useRef<WebSocket | null>(null);
-
-  console.log('accountAddress: ', accountAddress)
 
   const getQrCodeApi = (sessionId: string) => {
     return process.env.NEXT_PUBLIC_SERVER_URL + `/users/login-qr?sessionId=${sessionId}`;
