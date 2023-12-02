@@ -1,5 +1,7 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Image from 'next/image';
+import Swal from 'sweetalert2';
 import * as T from '@/styles/Ticket.styles';
 import * as M from '@/styles/MyPage.styles';
 import { MainImg } from './Common/Reference';
@@ -35,6 +37,30 @@ const MyPage = () => {
   let address = '0x3557db220dbfdBbB8Cf5489495Bf02AAC9A889ED';
 
   const [activeTab, setActiveTab] = React.useState('purchased');
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const jwtToken = sessionStorage.getItem('jwtToken');
+    if (!jwtToken) {
+      // 로그인 모달 표시
+      Swal.fire({
+        title: '로그인 필요',
+        text: '이 페이지를 사용하기 위해서는 로그인이 필요합니다.',
+        icon: 'warning',
+        confirmButtonText: '확인',
+        willClose: () => {
+          router.push('/'); // 로그인 페이지로 이동
+        }
+      });
+    } else {
+      setIsAuthenticated(true);
+    }
+  }, [router]);
+
+  if (!isAuthenticated) {
+    return null; // 로그인 상태가 아니면 페이지 내용을 렌더링하지 않음
+  }
 
   return (
     <M.MyPageContainer>
