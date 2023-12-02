@@ -41,7 +41,7 @@ export const ImageInputContainer = styled.div`
   margin-bottom: 2rem;
 `;
 
-export const CreateImageContainer = styled.div`
+export const CreateImageContainer = styled.label`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -54,14 +54,28 @@ export const CreateImageContainer = styled.div`
   box-sizing: border-box;
   cursor: pointer;
   transition: all 0.3s;
+  position: relative;
 
-  > svg {
-    font-size: 13rem;
-    color: #999;
-    transition: all 0.3s;
+  > div {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-    &:hover {
-      color: #666;
+    > img {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    > svg {
+      font-size: 13rem;
+      color: #999;
+      transition: all 0.3s;
+
+      &:hover {
+        color: #666;
+      }
     }
   }
 
