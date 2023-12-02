@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Image from 'next/image'
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import axios, { AxiosError } from 'axios';
 import { useQuery, useMutation } from 'react-query';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
@@ -40,6 +41,7 @@ const Header = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
   const dropdownRef = useRef<any>(null);
   const { address, isConnected } = useAccount();
 
@@ -112,6 +114,11 @@ const Header = () => {
       registerMutation.mutate();
     }
   }, [isConnected, address, accessToken, registerMutation]);
+
+  const handleDisconnect = () => {
+    sessionStorage.removeItem('jwtToken'); // 예시로 'jwtToken'을 삭제
+    router.push('/');
+  };
 
   return (
     <H.Head>
@@ -212,7 +219,7 @@ const Header = () => {
                                   <Link href={`/create`}>
                                     Create Ticket
                                   </Link>
-                                  <span onClick={openAccountModal}>Disconnect</span>
+                                  <span onClick={() => { openAccountModal(); handleDisconnect(); }}>Disconnect</span>
                                 </H.DropdownContainer>
                               )}
                             </H.DropdownButtonContainer>

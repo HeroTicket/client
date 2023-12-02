@@ -1,19 +1,215 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import Image from 'next/image';
+import Swal from 'sweetalert2';
+import { useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 import * as C from '@/styles/CreateTicket.styles';
+import * as S from '@/styles/styled';
+import axios from 'axios';
+
+interface IFile extends File {
+  file?: File;
+  preview?: string;
+  url?: string;
+}
+
+interface CreateTicketData {
+  name: string;
+  symbol: string;
+  description: string;
+  organizer: string;
+  location: string;
+  date: string;
+  bannerImage: File; // 또는 이미지 데이터에 따라 다른 타입
+  ticketUri: string;
+  ethPrice: number;
+  tokenPrice: number;
+  totalSupply: number;
+  saleDuration: number;
+}
+
+const EXTENSIONS = [
+  { type: 'gif' },
+  { type: 'jpg' },
+  { type: 'jpeg' },
+  { type: 'png' },
+  { type: 'mp4' },
+];
+
+
+const useCreateTicket = () => {
+  return useMutation(async (ticketData: CreateTicketData) => {
+    const jwtToken = sessionStorage.getItem('jwtToken');
+    if (!jwtToken) {
+      throw new Error("No JWT Token found in sessionStorage");
+    }
+    const tokenData = JSON.parse(jwtToken);
+    const { accessToken } = tokenData;
+
+    const formData = new FormData();
+    formData.append('name', ticketData.name);
+    formData.append('symbol', ticketData.symbol);
+    formData.append('description', ticketData.description);
+    formData.append('organizer', ticketData.organizer);
+    formData.append('location', ticketData.location);
+    formData.append('date', ticketData.date);
+    formData.append('bannerImage', ticketData.bannerImage);
+    formData.append('ticketUri', ticketData.ticketUri);
+    formData.append('ethPrice', ticketData.ethPrice?.toString());
+    formData.append('tokenPrice', ticketData.tokenPrice?.toString());
+    formData.append('totalSupply', ticketData.totalSupply?.toString());
+    formData.append('saleDuration', ticketData.saleDuration?.toString());
+
+    try {
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/tickets/create`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': `Bearer ${accessToken}`,
+        }
+      });
+
+      return response.data;
+    } catch (error) {
+      console.log('Error creating ticket: ', error);
+      throw error;
+    }
+  });
+}
 
 const CreateTicket = () => {
+  const createTicketMutation = useCreateTicket();
+
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [uploadFile, setUploadFile] = useState(null);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [ticketFile, setTicketFile] = useState<IFile | null>(null);
+  const [bannerFileUrl, setBannerFileUrl] = useState<IFile | null>(null);
+  const [ticketFileUrl, setTicketFileUrl] = useState<IFile | null>(null);
+
+  const fileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 파일이 있는지 확인
+    if (!e.target.files || e.target.files.length === 0) {
+      return; // 파일이 없으면 함수를 종료
+    }
+
+    const FILE = e.target.files[0];
+    const SIZE = 100;
+    const TYPE = (FILE.type).split('/')[1];
+    const FSIZE = (FILE.size) / Math.pow(10, 6);
+    const inputId = e.target.id;
+
+    console.log(FILE)
+  
+    if (FSIZE < SIZE && EXTENSIONS.some(extension => extension.type === TYPE)) {
+      const objectURL = URL.createObjectURL(FILE);
+  
+      if (inputId === 'ticket-banner') {
+        setBannerFile(FILE);
+        setBannerFileUrl({ ...FILE, preview: objectURL });
+      } else if (inputId === 'ticket') {
+        setTicketFileUrl({ ...FILE, preview: objectURL });
+        setTicketFile({ ...FILE, url: objectURL});
+      }
+    } else {
+      // 파일 크기 오류 처리
+      Swal.fire({
+        title: 'Error',
+        text: `파일 사이즈가 MAX SIZE ${SIZE}보다 큽니다.`,
+        icon: 'error',
+        confirmButtonText: '확인'
+      });
+    }
+  };
+  
+
+  useEffect(() => {
+    const jwtToken = sessionStorage.getItem('jwtToken');
+    if (!jwtToken) {
+      // 로그인 모달 표시
+      Swal.fire({
+        title: '로그인 필요',
+        text: '이 페이지를 사용하기 위해서는 로그인이 필요합니다.',
+        icon: 'warning',
+        confirmButtonText: '확인',
+        willClose: () => {
+          router.push('/'); // 로그인 페이지로 이동
+        }
+      });
+    } else {
+      setIsAuthenticated(true);
+    }
+  }, [router]);
+
+  if (!isAuthenticated) {
+    return null; // 로그인 상태가 아니면 페이지 내용을 렌더링하지 않음
+  }
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const formData = new FormData();
+    // 기타 폼 데이터 추가...
+  
+    console.log(bannerFile, ticketFile?.url)
+    if (bannerFile) {
+      formData.append('bannerImage', bannerFile);
+    }
+  
+    if (ticketFile) {
+      formData.append('ticketUri', ticketFileUrl?.preview);
+    }
+
+    const ticketData = {
+      name: '',
+      symbol: '',
+      description: '',
+      organizer: '',
+      location: '',
+      date: '',
+      bannerImage: '',
+      ticketUri: '',
+      ethPrice: '',
+      tokenPrice: '',
+      totalSupply: '',
+      saleDuration: '',
+    };
+
+    createTicketMutation.mutate(ticketData, {
+      onSuccess: (data) => {
+        // 성공 처리
+        console.log('Ticket created:', data);
+      },
+      onError: (error) => {
+        // 오류 처리
+        console.error('Error creating ticket:', error);
+      },
+    });
+  };
+
   return (
-    <C.FormContainer>
+    <C.FormContainer onSubmit={handleSubmit}>
       <C.ImageInputContainer>
-        <C.CreateImageContainer>
-          <FontAwesomeIcon icon={faImage} />
-          <input type='file' accept='image/*' hidden />
+        <C.CreateImageContainer htmlFor='ticket-banner'>
+          <div>
+            {bannerFileUrl && bannerFileUrl.preview ? (
+              <Image src={bannerFileUrl.preview} alt='Banner Preview' layout='responsive' width={100} height={100} quality={100} />
+            ) : (
+              <FontAwesomeIcon icon={faImage} />
+            )}
+            <input id='ticket-banner' type='file' accept='image/*' onChange={fileUpload} hidden required />
+          </div>
         </C.CreateImageContainer>
-        <C.CreateImageContainer>
-          <FontAwesomeIcon icon={faImage} />
-          <input type='file' accept='image/*' hidden />
+        <C.CreateImageContainer htmlFor='ticket'>
+          <div>
+            {ticketFileUrl && ticketFileUrl.preview ? (
+              <Image src={ticketFileUrl.preview} alt='Ticket Preview' layout='responsive' width={100} height={100} quality={100} />
+            ) : (
+              <FontAwesomeIcon icon={faImage} />
+            )}
+            <input id='ticket' type='file' accept='image/*' onChange={fileUpload} hidden />
+          </div>
         </C.CreateImageContainer>
       </C.ImageInputContainer>
       <C.InputWrap>
@@ -62,7 +258,7 @@ const CreateTicket = () => {
           <textarea placeholder='Description' id='desc' required />
         </C.TextContainer>
       </C.InputWrap>
-      <button type='submit'>Create</button>
+      <S.ButtonStyle type='submit'>Create</S.ButtonStyle>
     </C.FormContainer>
   )
 }
