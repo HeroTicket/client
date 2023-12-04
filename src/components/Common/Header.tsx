@@ -7,7 +7,7 @@ import { useQuery, useMutation } from 'react-query';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import PolygonIDVerifier from '@/components/PolygonIDVerifier';
-import { Logo, ModalPortal} from './Reference';
+import { Logo, ModalPortal } from './Reference';
 import * as H from '@/styles/Header.styles';
 
 interface UserInfo {
@@ -111,7 +111,7 @@ const Header = () => {
     const isRegistered = localStorage.getItem('userRegistered');
 
     if (isConnected && address && !isRegistered) {
-      registerMutation.mutate();
+      // registerMutation.mutate();
     }
   }, [isConnected, address, accessToken, registerMutation]);
 
@@ -159,7 +159,7 @@ const Header = () => {
                     account &&
                     chain &&
                     (!authenticationStatus || authenticationStatus === 'authenticated');
-        
+
                   return (
                     <div
                       {...(!ready && {
@@ -183,7 +183,7 @@ const Header = () => {
                             </H.StyledButton>
                           );
                         }
-        
+
                         if (chain.unsupported) {
                           return (
                             <button
@@ -195,14 +195,14 @@ const Header = () => {
                             </button>
                           );
                         }
-        
+
                         return (
                           <H.ProfileContainer>
                             <H.ChainButton onClick={openChainModal} type='button'>
                               {chain.hasIcon && (
                                 <H.ChainIconContainer>
                                   {chain.iconUrl && (
-                                    <Image src={chain.iconUrl} alt={chain.name ?? 'Chain icon'} layout='responsive' width={500} height={500} quality={100}/>
+                                    <Image src={chain.iconUrl} alt={chain.name ?? 'Chain icon'} layout='responsive' width={500} height={500} quality={100} />
                                   )}
                                 </H.ChainIconContainer>
                               )}
