@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
 import QRCode from "react-qr-code";
-import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import * as P from '@/styles/PolygonID.styles';
 import Link from "next/link";
 
 interface PolygonIDProps {
-  accountAddress?: string ;
+  accountAddress?: string;
   credentialType: string;
+  loginHandler?: (tokenPair: any) => void;
   onVerificationResult: Dispatch<SetStateAction<boolean>>;
 }
 
@@ -39,6 +39,7 @@ interface SocketEvent {
 const PolygonIDVerifier = ({
   accountAddress,
   credentialType,
+  loginHandler,
   onVerificationResult,
 }: PolygonIDProps) => {
   const [sessionId, setSessionId] = useState<string>("");
@@ -125,7 +126,7 @@ const PolygonIDVerifier = ({
           if (currentSocketEvent.status === 'DONE') {
             setVerificationMessage("✅ Verified proof");
             const jwtTokenPair = currentSocketEvent.data;
-            sessionStorage.setItem('jwtToken', JSON.stringify(jwtTokenPair));
+            loginHandler!(jwtTokenPair);
 
             setTimeout(() => {
               reportVerificationResult(true);
@@ -139,7 +140,7 @@ const PolygonIDVerifier = ({
     }
   }, [socketEvents]);
 
-  
+
 
   // callback, send verification result back to app
   const reportVerificationResult = (result: boolean) => {
@@ -154,7 +155,7 @@ const PolygonIDVerifier = ({
           <div>
             <p>Authenticating...</p>
             <P.StyledSpinner viewBox="0 0 50 50">
-              <circle 
+              <circle
                 className="path"
                 cx={25}
                 cy={25}

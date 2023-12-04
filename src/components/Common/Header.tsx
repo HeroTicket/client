@@ -1,40 +1,15 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
 import Image from 'next/image'
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import axios, { AxiosError } from 'axios';
-import { useQuery, useMutation } from 'react-query';
+
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
 import PolygonIDVerifier from '@/components/PolygonIDVerifier';
 import { Logo, ModalPortal } from './Reference';
 import * as H from '@/styles/Header.styles';
-
-interface UserInfo {
-  // 사용자 정보 타입 정의
-}
-
-interface UserRegistrationResponse {
-  // 사용자 등록 응답 타입 정의
-}
-
-const fetchUserInfo = async (accessToken: string, address: string): Promise<UserInfo> => {
-  const response = await axios.get<UserInfo>(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/info`, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  return response.data;
-};
-
-const registerUser = async (accessToken: string, address: string): Promise<UserRegistrationResponse> => {
-  const res = await axios.post<UserRegistrationResponse>(`${process.env.NEXT_PUBLIC_SERVER_URL}/users/register/${address}`, {}, {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-  return res.data;
-};
+import { authContext } from '@/pages/providers';
 
 
 const Header = () => {
@@ -43,7 +18,9 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const dropdownRef = useRef<any>(null);
+
   const { address, isConnected } = useAccount();
+  const { isLoggedIn, accessToken, login, logout } = useContext(authContext);
 
   const toggleDropdown = () => {
     setIsOpen(!isOpen);
@@ -58,62 +35,6 @@ const Header = () => {
     setIsModalOpen(false);
     document.body.style.overflow = "unset";
   }
-
-  let accessToken: string = '';
-
-  const jwtToken = sessionStorage.getItem('jwtToken');
-
-  if (jwtToken) {
-    try {
-      const parsedToken = JSON.parse(jwtToken);
-      if (parsedToken && parsedToken.accessToken && typeof parsedToken.accessToken === 'string') {
-        accessToken = parsedToken.accessToken;
-      }
-    } catch (error) {
-      console.error('Parsing jwtToken failed', error);
-    }
-  }
-
-  const userInfoQuery = useQuery<UserInfo, AxiosError>(
-    ['userInfo', accessToken, address],
-    () => {
-      // accessToken과 address가 유효한지 확인
-      if (!accessToken || !address) {
-        throw new Error("Missing accessToken or address");
-      }
-      return fetchUserInfo(accessToken, address);
-    },
-    {
-      // accessToken과 address가 모두 있는 경우에만 쿼리 활성화
-      enabled: !!accessToken && !!address,
-    },
-  );
-
-  const registerMutation = useMutation<UserRegistrationResponse, AxiosError, void>(
-    () => {
-      if (!accessToken || !address) {
-        throw new Error("Missing accessToken or address");
-      }
-      return registerUser(accessToken, address);
-    },
-    {
-      onSuccess: (data) => {
-        console.log('User registered:', data);
-        localStorage.setItem('userRegistered', 'true');
-      },
-      onError: (error) => {
-        console.error('Error registering user:', error);
-      },
-    },
-  );
-
-  useEffect(() => {
-    const isRegistered = localStorage.getItem('userRegistered');
-
-    if (isConnected && address && !isRegistered) {
-      // registerMutation.mutate();
-    }
-  }, [isConnected, address, accessToken, registerMutation]);
 
   const handleDisconnect = () => {
     sessionStorage.removeItem('jwtToken'); // 예시로 'jwtToken'을 삭제
@@ -231,7 +152,7 @@ const Header = () => {
                 }}
               </ConnectButton.Custom>
             ) : (
-              <H.LoginBtn onClick={openModal}>Login</H.LoginBtn>
+              <H.LoginBtn onClick={openModal}>Connect</H.LoginBtn>
             )}
           </li>
         </H.Menu>
@@ -245,6 +166,7 @@ const Header = () => {
               <PolygonIDVerifier
                 accountAddress={isConnected ? address : ''}
                 credentialType={"Authorization"}
+                loginHandler={login}
                 onVerificationResult={setAuthenticated}
               />
             )}
