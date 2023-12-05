@@ -7,8 +7,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 import * as C from '@/styles/CreateTicket.styles';
 import * as S from '@/styles/styled';
-import axios from 'axios';
-import { authContext } from '@/pages/providers';
+import axios, { AxiosError } from 'axios';
+import { authContext } from '@/context/providers';
 
 interface IFile extends File {
   file?: File;
@@ -17,6 +17,7 @@ interface IFile extends File {
 }
 
 interface CreateTicketData {
+  accessToken: string;
   name: string;
   symbol: string;
   description: string;
@@ -31,6 +32,34 @@ interface CreateTicketData {
   saleDuration: number;
 }
 
+interface TicketCollection {
+  bannerUrl: string;
+  contractAddress: string;
+  createdAt: number;
+  date: string;
+  description: string;
+  ethPrice: string;
+  id: string;
+  issuerAddress: string;
+  location: string;
+  name: string;
+  organizer: string;
+  remaining: string;
+  saleEndAt: number;
+  saleStartAt: number;
+  symbol: string;
+  ticketUrl: string;
+  tokenPrice: string;
+  totalSupply: string;
+  updatedAt: number;
+}
+
+interface CreateTicketResponse {
+  status: number;
+  message: string;
+  data: TicketCollection;
+}
+
 const EXTENSIONS = [
   { type: 'gif' },
   { type: 'jpg' },
@@ -40,49 +69,11 @@ const EXTENSIONS = [
 ];
 
 
-const useCreateTicket = () => {
-  return useMutation(async (ticketData: CreateTicketData) => {
-    const jwtToken = sessionStorage.getItem('jwtToken');
-    if (!jwtToken) {
-      throw new Error("No JWT Token found in sessionStorage");
-    }
-    const tokenData = JSON.parse(jwtToken);
-    const { accessToken } = tokenData;
-
-    const formData = new FormData();
-    formData.append('name', ticketData.name);
-    formData.append('symbol', ticketData.symbol);
-    formData.append('description', ticketData.description);
-    formData.append('organizer', ticketData.organizer);
-    formData.append('location', ticketData.location);
-    formData.append('date', ticketData.date);
-    formData.append('bannerImage', ticketData.bannerImage);
-    formData.append('ticketUri', ticketData.ticketUri);
-    formData.append('ethPrice', ticketData.ethPrice?.toString());
-    formData.append('tokenPrice', ticketData.tokenPrice?.toString());
-    formData.append('totalSupply', ticketData.totalSupply?.toString());
-    formData.append('saleDuration', ticketData.saleDuration?.toString());
-
-    try {
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_SERVER_URL}/tickets/create`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'Authorization': `Bearer ${accessToken}`,
-        }
-      });
-
-      return response.data;
-    } catch (error) {
-      console.log('Error creating ticket: ', error);
-      throw error;
-    }
-  });
-}
 
 const CreateTicket = () => {
-  const createTicketMutation = useCreateTicket();
+  //const createTicketMutation = useCreateTicket();
 
-  const { isLoading, isLoggedIn, isRegistered, addressMatched, userInfo } = useContext(authContext);
+  const { isLoading, isLoggedIn, isRegistered, addressMatched, accessToken, userInfo } = useContext(authContext);
 
   const router = useRouter();
   const [uploadFile, setUploadFile] = useState(null);
@@ -126,6 +117,105 @@ const CreateTicket = () => {
     }
   };
 
+  const handleCreateTicket = async (ticketData: CreateTicketData): Promise<TicketCollection> => {
+    const formData = new FormData();
+    formData.append('name', ticketData.name);
+    formData.append('symbol', ticketData.symbol);
+    formData.append('description', ticketData.description);
+    formData.append('organizer', ticketData.organizer);
+    formData.append('location', ticketData.location);
+    formData.append('date', ticketData.date);
+    formData.append('bannerImage', ticketData.bannerImage);
+    formData.append('ticketUri', ticketData.ticketUri);
+    formData.append('ethPrice', ticketData.ethPrice?.toString());
+    formData.append('tokenPrice', ticketData.tokenPrice?.toString());
+    formData.append('totalSupply', ticketData.totalSupply?.toString());
+    formData.append('saleDuration', ticketData.saleDuration?.toString());
+
+    const response = await axios.post<CreateTicketResponse>(`${process.env.NEXT_PUBLIC_SERVER_URL}/tickets/create`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${ticketData.accessToken}`,
+      }
+    });
+
+    if (response.status !== 201) {
+      throw new AxiosError(response.data.message ? response.data.message : "Ticket creation failed");
+    }
+
+    return response.data.data
+  }
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!accessToken) {
+      return; // 로그인 상태가 아니면 함수를 종료
+    }
+
+    if (!bannerFile) {
+      // 배너 이미지가 없으면 함수를 종료
+      return;
+    }
+
+    const ticketData: CreateTicketData = {} as CreateTicketData;
+
+    ticketData.accessToken = accessToken;
+    ticketData.name = (document.getElementById('name') as HTMLInputElement).value;
+    ticketData.symbol = (document.getElementById('symbol') as HTMLInputElement).value;
+    ticketData.description = (document.getElementById('desc') as HTMLInputElement).value;
+    ticketData.organizer = (document.getElementById('organizer') as HTMLInputElement).value;
+    ticketData.location = (document.getElementById('location') as HTMLInputElement).value;
+    ticketData.date = (document.getElementById('date') as HTMLInputElement).value;
+    ticketData.bannerImage = bannerFile;
+    ticketData.ticketUri = "QmaMmMmMkzYgSLQBDTVkyms4zgMRkZyw5MmUCZ6okN7zP4";
+    ticketData.ethPrice = Number((document.getElementById('eth-price') as HTMLInputElement).value);
+    ticketData.tokenPrice = Number((document.getElementById('token-price') as HTMLInputElement).value);
+    ticketData.totalSupply = Number((document.getElementById('total') as HTMLInputElement).value);
+    ticketData.saleDuration = Number((document.getElementById('sale-duration') as HTMLInputElement).value);
+
+    Swal.fire({
+      title: "Are you sure to create this ticket?",
+      text: `Your current token balance: ${userInfo!.tbaTokenBalance}`,
+      icon: "info",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Create",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          title: "Please wait...",
+          icon: "info",
+          didOpen: () => {
+            Swal.showLoading();
+
+            handleCreateTicket(ticketData).then((data) => {
+              Swal.fire({
+                title: "Ticket created!",
+                text: `${data.contractAddress} is created.`,
+                icon: "success",
+                willClose: () => {
+                  router.reload();
+                }
+              })
+
+            }).catch((error) => {
+              Swal.fire({
+                title: "Error",
+                text: error.message,
+                icon: "error",
+                confirmButtonText: "OK",
+              });
+            });
+          }
+        });
+
+      }
+    });
+
+
+  };
 
   useEffect(() => {
     if (isLoading) {
@@ -149,49 +239,6 @@ const CreateTicket = () => {
   if (!(isLoggedIn && isRegistered && addressMatched && userInfo)) {
     return null; // 로그인 상태가 아니면 페이지 내용을 렌더링하지 않음
   }
-
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const formData = new FormData();
-    // 기타 폼 데이터 추가...
-
-    console.log(bannerFile, ticketFile?.url)
-    if (bannerFile) {
-      formData.append('bannerImage', bannerFile);
-    }
-
-    if (ticketFile) {
-      //formData.append('ticketUri', ticketFileUrl?.preview);
-    }
-
-    const ticketData = {
-      name: '',
-      symbol: '',
-      description: '',
-      organizer: '',
-      location: '',
-      date: '',
-      bannerImage: '',
-      ticketUri: '',
-      ethPrice: '',
-      tokenPrice: '',
-      totalSupply: '',
-      saleDuration: '',
-    };
-
-    /*
-    createTicketMutation.mutate(ticketData, {
-      onSuccess: (data) => {
-        // 성공 처리
-        console.log('Ticket created:', data);
-      },
-      onError: (error) => {
-        // 오류 처리
-        console.error('Error creating ticket:', error);
-      },
-    });
-    */
-  };
 
   return (
     <C.FormContainer onSubmit={handleSubmit}>
@@ -245,17 +292,23 @@ const CreateTicket = () => {
           </div>
           <div>
             <label htmlFor='total'>Ticket Total Supply <span>*</span></label>
-            <input type='number' placeholder='Ticket Total Supply' id='total' required />
+            <input type='number' placeholder='Ticket Total Supply' id='total' required min={1} step={1} />
           </div>
         </C.InputContainer>
         <C.InputContainer>
           <div>
             <label htmlFor='eth-price'>ETH Price <span>*</span></label>
-            <input type='number' placeholder='ETH Price' id='eth-price' step={0.1} required />
+            <input type='number' placeholder='ETH Price in Gwei' id='eth-price' step={0.1} required min={1} />
           </div>
           <div>
             <label htmlFor='token-price'>Token Price <span>*</span></label>
-            <input type='number' placeholder='Token Price' id='token-price' step={0.1} required />
+            <input type='number' placeholder='Token Price' id='token-price' step={1} required min={1} />
+          </div>
+        </C.InputContainer>
+        <C.InputContainer>
+          <div>
+            <label htmlFor='sale-duration'>Sale Duration <span>*</span></label>
+            <input type='number' placeholder='Sale Duration' id='sale-duration' step={1} required min={1} />
           </div>
         </C.InputContainer>
         <C.TextContainer>
