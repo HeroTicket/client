@@ -9,7 +9,7 @@ interface PolygonIDProps {
   accountAddress?: string;
   credentialType: string;
   loginHandler?: (tokenPair: any) => void;
-  onVerificationResult: Dispatch<SetStateAction<boolean>>;
+
 }
 
 interface QRCodeData {
@@ -40,7 +40,6 @@ const PolygonIDVerifier = ({
   accountAddress,
   credentialType,
   loginHandler,
-  onVerificationResult,
 }: PolygonIDProps) => {
   const [sessionId, setSessionId] = useState<string>("");
   const [qrCodeData, setQrCodeData] = useState<QRCodeData | null>(null);
@@ -104,7 +103,6 @@ const PolygonIDVerifier = ({
 
     if (sessionId) {
       fetchQrCode().then((data) => {
-        console.log(data.data);
         setQrCodeData(data.data);
       }).catch(console.error);
     }
@@ -126,11 +124,10 @@ const PolygonIDVerifier = ({
           if (currentSocketEvent.status === 'DONE') {
             setVerificationMessage("✅ Verified proof");
             const jwtTokenPair = currentSocketEvent.data;
-            loginHandler!(jwtTokenPair);
 
             setTimeout(() => {
-              reportVerificationResult(true);
-            }, 2000);
+              loginHandler!(jwtTokenPair);
+            }, 3000);
             socket.current?.close();
           } else {
             setVerificationMessage("❌ Error verifying VC");
@@ -139,13 +136,6 @@ const PolygonIDVerifier = ({
       }
     }
   }, [socketEvents]);
-
-
-
-  // callback, send verification result back to app
-  const reportVerificationResult = (result: boolean) => {
-    onVerificationResult(result);
-  };
 
   return (
     <>
@@ -176,6 +166,16 @@ const PolygonIDVerifier = ({
           !verificationCheckComplete && (
             <QRCode value={JSON.stringify(qrCodeData)} />
           )}
+        {!qrCodeData && (<P.StyledSpinner viewBox="0 0 50 50">
+          <circle
+            className="path"
+            cx={25}
+            cy={25}
+            r={20}
+            fill="none"
+            strokeWidth={4}
+          />
+        </P.StyledSpinner>)}
         <P.ButtonContainer>
           <button>
             <Link href={linkDownloadPolygonIDWalletApp} target="_blank">

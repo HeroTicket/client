@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
 import * as T from '@/styles/Ticket.styles';
 import * as M from '@/styles/MyPage.styles';
 import { MainImg } from './Common/Reference';
+import { authContext } from '@/pages/providers';
 
 const dummyData = [
   { 'id': 1, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231030015704_23014028.gif', 'owner': 'voluptatem', 'place': 'occaecati', 'title': 'quo optio et', 'desc': 'Fugiat enim a reprehenderit. Quis repellendus culpa non exercitationem. Illo est repudiandae. Qui ullam et molestiae aut. Commodi aliquid facilis perspiciatis minima illo itaque.Fugiat enim a reprehenderit. Quis repellendus culpa non exercitationem. Illo est repudiandae. Qui ullam et molestiae aut. Commodi aliquid facilis perspiciatis minima illo itaque.' },
@@ -34,31 +35,31 @@ const dummyData2 = [
 ]
 
 const MyPage = () => {
-  let address = '0x3557db220dbfdBbB8Cf5489495Bf02AAC9A889ED';
-
   const [activeTab, setActiveTab] = React.useState('purchased');
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const { isLoading, isLoggedIn, isRegistered, addressMatched, userInfo } = useContext(authContext);
 
   useEffect(() => {
-    const jwtToken = sessionStorage.getItem('jwtToken');
-    if (!jwtToken) {
+    if (isLoading) {
+      return; // 로그인 상태 확인 중이면 페이지 내용을 렌더링하지 않음
+    }
+
+    if (!(isLoggedIn)) {
       // 로그인 모달 표시
       Swal.fire({
-        title: '로그인 필요',
-        text: '이 페이지를 사용하기 위해서는 로그인이 필요합니다.',
+        title: 'Login Required',
+        text: 'You need to login to access this page.',
         icon: 'warning',
-        confirmButtonText: '확인',
+        confirmButtonText: 'OK',
         willClose: () => {
           router.push('/'); // 로그인 페이지로 이동
         }
       });
-    } else {
-      setIsAuthenticated(true);
     }
-  }, [router]);
+  }, [router, isLoading, isLoggedIn]);
 
-  if (!isAuthenticated) {
+  if (!(isLoggedIn && isRegistered && addressMatched && userInfo)) {
     return null; // 로그인 상태가 아니면 페이지 내용을 렌더링하지 않음
   }
 
@@ -69,7 +70,7 @@ const MyPage = () => {
           <Image src={MainImg} layout='responsive' width={800} height={720} quality={100} alt='profile image' />
         </M.MyPageImageContainer>
         <M.InfoContainer>
-          <p title='Click to copy the address'>{address.slice(0, 12) + '...' + address.slice(30, address.length)}</p>
+          <p title='Click to copy the address'>{userInfo!.accountAddress.slice(0, 12) + '...' + userInfo!.accountAddress.slice(30, userInfo!.accountAddress.length)}</p>
         </M.InfoContainer>
       </M.ProfileContainer>
       <M.TabContainer>
@@ -91,7 +92,7 @@ const MyPage = () => {
           {dummyData.map(card => (
             <T.Card key={card.id}>
               <T.CardImgContainer>
-                <Image src={card.poster} alt="poster" fill quality={100}  />
+                <Image src={card.poster} alt="poster" fill quality={100} />
               </T.CardImgContainer>
               <T.CardContent>
                 <h2>{card.owner}</h2>
@@ -106,7 +107,7 @@ const MyPage = () => {
           {dummyData2.map(card => (
             <T.Card key={card.id}>
               <T.CardImgContainer>
-                <Image src={card.poster} alt="poster" fill quality={100}  />
+                <Image src={card.poster} alt="poster" fill quality={100} />
               </T.CardImgContainer>
               <T.CardContent>
                 <h2>{card.owner}</h2>

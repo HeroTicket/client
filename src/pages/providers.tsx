@@ -50,36 +50,44 @@ interface UserRegistrationResponse {
 // ==================== Context ====================
 
 export const authContext = React.createContext({
+  isLoading: true,
   isLoggedIn: false,
   isRegistered: false,
   addressMatched: false,
   accessToken: '',
+  userInfo: {} as UserInfo | null,
   login: (tokenPair: any) => { },
   logout: () => { },
-  registerUser: () => { },
+  registerUser: (): Promise<UserInfo> => {
+    return new Promise<UserInfo>((resolve, reject) => {
+      reject(new Error("registerUser not implemented"));
+    });
+  }
 });
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const { address, isConnected } = useAccount();
+  const [isLoading, setIsLoading] = React.useState(true);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [accessToken, setAccessToken] = React.useState<string>('');
   const [refreshIntervalId, setRefreshIntervalId] = React.useState<NodeJS.Timeout>();
   const [isRegistered, setIsRegistered] = React.useState<boolean>(false);
+  const [userInfo, setUserInfo] = React.useState<UserInfo | null>(null);
   const [addressMatched, setAddressMatched] = React.useState<boolean>(false);
 
   const login = (tokenPair: any) => {
-    const intervalId = setInterval(refreshAccessToken, 15 * 60 * 1000);
-
-    setRefreshIntervalId(intervalId);
     sessionStorage.setItem('heroticket.jwtToken', JSON.stringify(tokenPair));
     setAccessToken(tokenPair.accessToken);
     setIsLoggedIn(true);
+
+    const intervalId = setInterval(refreshAccessToken, 15 * 60 * 1000);
+    setRefreshIntervalId(intervalId);
   }
 
   const logout = () => {
     sessionStorage.removeItem('heroticket.jwtToken');
-    setIsLoggedIn(false);
     setAccessToken('');
+    setIsLoggedIn(false);
     clearInterval(refreshIntervalId);
   };
 
@@ -127,7 +135,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
     });
 
     if (response.status !== 201) {
-      throw new Error("Failed to register user with status code " + response.status);
+      throw new AxiosError(response.data.message, response.status.toString(), undefined, null, response)
     }
 
     return response.data.data;
@@ -161,6 +169,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       enabled: !!accessToken && !!address,
       onSuccess: (data) => {
         console.log('User info fetched:', data);
+        setUserInfo(data);
         setIsRegistered(true);
       },
       onError: (error) => {
@@ -170,12 +179,14 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         console.error('Error fetching user info:', error);
-      }
+      },
     },
   );
 
   React.useEffect(() => {
     if (isConnected) {
+      setIsLoading(true);
+
       refreshAccessToken().then(() => {
         const intervalId = setInterval(refreshAccessToken, 15 * 60 * 1000);
 
@@ -187,26 +198,29 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
         setIsLoggedIn(false);
         setAccessToken('');
         clearInterval(refreshIntervalId);
+      }).finally(() => {
+        setIsLoading(false);
       });
     } else {
       setIsLoggedIn(false);
       setAccessToken('');
       clearInterval(refreshIntervalId);
+      setIsLoading(false);
     }
   }, [isConnected]);
 
   React.useEffect(() => {
-    if (isLoggedIn && userInfoQuery.isFetched && userInfoQuery.data) {
+    if (userInfo) {
       // address와 accessToken이 일치하는지 확인 => lowercase로 변환해서 비교
-      const addressMatched = userInfoQuery.data.accountAddress.toLowerCase() === address?.toLowerCase();
+      const addressMatched = userInfo.accountAddress.toLowerCase() === address?.toLowerCase();
 
       setAddressMatched(addressMatched);
     }
-  }, [isLoggedIn, address, userInfoQuery.isFetched]);
+  }, [userInfo]);
 
 
   return (
-    <authContext.Provider value={{ isLoggedIn, isRegistered, addressMatched, accessToken, login, logout, registerUser }}>
+    <authContext.Provider value={{ isLoading, isLoggedIn, isRegistered, addressMatched, accessToken, userInfo, login, logout, registerUser }}>
       {children}
     </authContext.Provider>
   );

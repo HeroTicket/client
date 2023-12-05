@@ -5,7 +5,11 @@ const nextConfig = {
     styledComponents: true,
   },
   images: {
-    domains: ['ticketimage.interpark.com'],
+    remotePatterns: [{
+      protocol: 'http',
+      hostname: "ticketimage.interpark.com",
+      port: '',
+    }],
   },
 };
 
