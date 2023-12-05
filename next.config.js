@@ -1,11 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
   compiler: {
     styledComponents: true,
   },
   images: {
-    domains: ['ticketimage.interpark.com'],
+    remotePatterns: [{
+      protocol: 'http',
+      hostname: "ticketimage.interpark.com",
+      port: '',
+    }],
   },
 };
 

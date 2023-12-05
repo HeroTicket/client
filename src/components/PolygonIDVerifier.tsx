@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
 import QRCode from "react-qr-code";
-import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import * as P from '@/styles/PolygonID.styles';
 import Link from "next/link";
 
 interface PolygonIDProps {
-  accountAddress?: string ;
+  accountAddress?: string;
   credentialType: string;
-  onVerificationResult: Dispatch<SetStateAction<boolean>>;
+  loginHandler?: (tokenPair: any) => void;
+
 }
 
 interface QRCodeData {
@@ -39,7 +39,7 @@ interface SocketEvent {
 const PolygonIDVerifier = ({
   accountAddress,
   credentialType,
-  onVerificationResult,
+  loginHandler,
 }: PolygonIDProps) => {
   const [sessionId, setSessionId] = useState<string>("");
   const [qrCodeData, setQrCodeData] = useState<QRCodeData | null>(null);
@@ -103,7 +103,6 @@ const PolygonIDVerifier = ({
 
     if (sessionId) {
       fetchQrCode().then((data) => {
-        console.log(data.data);
         setQrCodeData(data.data);
       }).catch(console.error);
     }
@@ -125,11 +124,10 @@ const PolygonIDVerifier = ({
           if (currentSocketEvent.status === 'DONE') {
             setVerificationMessage("✅ Verified proof");
             const jwtTokenPair = currentSocketEvent.data;
-            sessionStorage.setItem('jwtToken', JSON.stringify(jwtTokenPair));
 
             setTimeout(() => {
-              reportVerificationResult(true);
-            }, 2000);
+              loginHandler!(jwtTokenPair);
+            }, 3000);
             socket.current?.close();
           } else {
             setVerificationMessage("❌ Error verifying VC");
@@ -139,13 +137,6 @@ const PolygonIDVerifier = ({
     }
   }, [socketEvents]);
 
-  
-
-  // callback, send verification result back to app
-  const reportVerificationResult = (result: boolean) => {
-    onVerificationResult(result);
-  };
-
   return (
     <>
       <P.QRCodeContainer>
@@ -154,7 +145,7 @@ const PolygonIDVerifier = ({
           <div>
             <p>Authenticating...</p>
             <P.StyledSpinner viewBox="0 0 50 50">
-              <circle 
+              <circle
                 className="path"
                 cx={25}
                 cy={25}
@@ -175,6 +166,16 @@ const PolygonIDVerifier = ({
           !verificationCheckComplete && (
             <QRCode value={JSON.stringify(qrCodeData)} />
           )}
+        {!qrCodeData && (<P.StyledSpinner viewBox="0 0 50 50">
+          <circle
+            className="path"
+            cx={25}
+            cy={25}
+            r={20}
+            fill="none"
+            strokeWidth={4}
+          />
+        </P.StyledSpinner>)}
         <P.ButtonContainer>
           <button>
             <Link href={linkDownloadPolygonIDWalletApp} target="_blank">

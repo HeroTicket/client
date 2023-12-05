@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
@@ -8,6 +8,7 @@ import { faImage } from '@fortawesome/free-solid-svg-icons';
 import * as C from '@/styles/CreateTicket.styles';
 import * as S from '@/styles/styled';
 import axios from 'axios';
+import { authContext } from '@/pages/providers';
 
 interface IFile extends File {
   file?: File;
@@ -81,8 +82,9 @@ const useCreateTicket = () => {
 const CreateTicket = () => {
   const createTicketMutation = useCreateTicket();
 
+  const { isLoading, isLoggedIn, isRegistered, addressMatched, userInfo } = useContext(authContext);
+
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [uploadFile, setUploadFile] = useState(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [ticketFile, setTicketFile] = useState<IFile | null>(null);
@@ -102,16 +104,16 @@ const CreateTicket = () => {
     const inputId = e.target.id;
 
     console.log(FILE)
-  
+
     if (FSIZE < SIZE && EXTENSIONS.some(extension => extension.type === TYPE)) {
       const objectURL = URL.createObjectURL(FILE);
-  
+
       if (inputId === 'ticket-banner') {
         setBannerFile(FILE);
         setBannerFileUrl({ ...FILE, preview: objectURL });
       } else if (inputId === 'ticket') {
         setTicketFileUrl({ ...FILE, preview: objectURL });
-        setTicketFile({ ...FILE, url: objectURL});
+        setTicketFile({ ...FILE, url: objectURL });
       }
     } else {
       // 파일 크기 오류 처리
@@ -123,27 +125,28 @@ const CreateTicket = () => {
       });
     }
   };
-  
+
 
   useEffect(() => {
-    const jwtToken = sessionStorage.getItem('jwtToken');
-    if (!jwtToken) {
+    if (isLoading) {
+      return; // 로그인 상태 확인 중이면 페이지 내용을 렌더링하지 않음
+    }
+
+    if (!(isLoggedIn)) {
       // 로그인 모달 표시
       Swal.fire({
-        title: '로그인 필요',
-        text: '이 페이지를 사용하기 위해서는 로그인이 필요합니다.',
+        title: 'Login Required',
+        text: 'You need to login to access this page.',
         icon: 'warning',
-        confirmButtonText: '확인',
+        confirmButtonText: 'OK',
         willClose: () => {
           router.push('/'); // 로그인 페이지로 이동
         }
       });
-    } else {
-      setIsAuthenticated(true);
     }
-  }, [router]);
+  }, [router, isLoading, isLoggedIn]);
 
-  if (!isAuthenticated) {
+  if (!(isLoggedIn && isRegistered && addressMatched && userInfo)) {
     return null; // 로그인 상태가 아니면 페이지 내용을 렌더링하지 않음
   }
 
@@ -151,14 +154,14 @@ const CreateTicket = () => {
     event.preventDefault();
     const formData = new FormData();
     // 기타 폼 데이터 추가...
-  
+
     console.log(bannerFile, ticketFile?.url)
     if (bannerFile) {
       formData.append('bannerImage', bannerFile);
     }
-  
+
     if (ticketFile) {
-      formData.append('ticketUri', ticketFileUrl?.preview);
+      //formData.append('ticketUri', ticketFileUrl?.preview);
     }
 
     const ticketData = {
@@ -176,6 +179,7 @@ const CreateTicket = () => {
       saleDuration: '',
     };
 
+    /*
     createTicketMutation.mutate(ticketData, {
       onSuccess: (data) => {
         // 성공 처리
@@ -186,6 +190,7 @@ const CreateTicket = () => {
         console.error('Error creating ticket:', error);
       },
     });
+    */
   };
 
   return (
