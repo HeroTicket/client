@@ -7,7 +7,10 @@ import { Title } from '@/styles/styled';
 import 'react-calendar/dist/Calendar.css';
 import * as T from '@/styles/Ticket.styles';
 import * as S from '@/styles/Calendar.styles';
+import axios from 'axios';
+import { useQuery } from 'react-query';
 
+/*
 const dummyData = [
   { 'id': 1, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231030015704_23014028.gif', 'owner': 'voluptatem', 'place': 'occaecati', 'title': 'quo optio et', 'desc': 'Fugiat enim a reprehenderit. Quis repellendus culpa non exercitationem. Illo est repudiandae. Qui ullam et molestiae aut. Commodi aliquid facilis perspiciatis minima illo itaque.Fugiat enim a reprehenderit. Quis repellendus culpa non exercitationem. Illo est repudiandae. Qui ullam et molestiae aut. Commodi aliquid facilis perspiciatis minima illo itaque.' },
   { 'id': 2, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2311/231103111621_23016085.gif', 'owner': 'quisquam', 'place': 'totam', 'title': 'quo optio et', 'desc': 'Illo deleniti quo velit ipsum consequatur facilis est minima.' },
@@ -26,15 +29,37 @@ const dummyData = [
   { 'id': 15, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231031095904_23015513.gif', 'owner': 'harum', 'place': 'quae', 'title': 'quo optio et', 'desc': 'Dolorem ipsa recusandae consequuntur non eligendi eos eum saepe ea.' },
   { 'id': 16, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231012031758_23014405.gif', 'owner': 'in', 'place': 'in', 'title': 'quo optio et', 'desc': 'Et qui consequatur.' },
 ]
+*/
 
-interface TicketData {
-  id: number;
-  poster: string;
-  owner: string;
-  place: string;
-  title: string;
-  desc: string;
+
+interface TicketCollection {
+  bannerUrl: string;
+  contractAddress: string;
+  createdAt: number;
+  date: string;
+  description: string;
+  ethPrice: string;
+  id: string;
+  issuerAddress: string;
+  location: string;
+  name: string;
+  organizer: string;
+  remaining: string;
+  saleEndAt: number;
+  saleStartAt: number;
+  symbol: string;
+  ticketUrl: string;
+  tokenPrice: string;
+  totalSupply: string;
+  updatedAt: number;
 }
+
+interface GetTicketCollectionResponse {
+  status: number;
+  message: string;
+  data: TicketCollection[];
+}
+
 
 type ValuePiece = Date | null;
 
@@ -42,7 +67,7 @@ export type Value = ValuePiece | [ValuePiece, ValuePiece];
 
 const Ticket = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedItem, setSelectedItem] = useState<TicketData | null>(null);
+  const [selectedItem, setSelectedItem] = useState<TicketCollection | null>(null);
   const [value, setValue] = useState<Value>(new Date());
   const [isNextStepClicked, setIsNextStepClicked] = useState<boolean>(false);
   const [isPolygonBtn, setIsPolygonBtn] = useState<boolean>(false);
@@ -61,7 +86,7 @@ const Ticket = () => {
     return view === 'month' && !availableDates.includes(date.getTime());
   };
 
-  const openModal = (data: TicketData) => {
+  const openModal = (data: TicketCollection) => {
     setSelectedItem(data);
     setIsModalOpen(true);
     document.body.style.overflow = "hidden";
@@ -80,40 +105,62 @@ const Ticket = () => {
     setIsNextStepClicked(true);
   }
 
+  const fetchTicketCollection = async (): Promise<TicketCollection[]> => {
+    const response = await axios.get<GetTicketCollectionResponse>(`${process.env.NEXT_PUBLIC_SERVER_URL}/tickets`);
+
+    if (response.data.status !== 200) {
+      throw new Error(response.data.message);
+    }
+
+    return response.data.data;
+  };
+
+  const ticketsQuery = useQuery<TicketCollection[], Error>('tickets', fetchTicketCollection);
+
   return (
     <T.TicketContainer>
       <Title>
         <h1>Ticket</h1>
       </Title>
       <T.CardContainer>
-        {dummyData.map((data) => {
-          return (
-            <T.Card key={data.id} onClick={() => openModal(data)}>
-              <T.CardImgContainer>
-                <Image src={data.poster} alt="poster" fill quality={100}  />
-              </T.CardImgContainer>
-              <T.CardContent>
-                <h2>{data.owner}</h2>
-                <p className="place">{data.place}</p>
-                <p className='title'>{data.title}</p>
-              </T.CardContent>
-            </T.Card>
+        {
+          ticketsQuery.isLoading ? (
+            <div>Loading...</div>
+          ) : ticketsQuery.isError ? (
+            <div>Error: {ticketsQuery.error.message}</div>
+          ) : (
+            ticketsQuery.data ? (ticketsQuery.data?.map((ticket) => {
+              return (
+                <T.Card key={ticket.id} onClick={() => openModal(ticket)}>
+                  <T.CardImgContainer>
+                    <Image src={ticket.bannerUrl} alt="poster" fill quality={100} />
+                  </T.CardImgContainer>
+                  <T.CardContent>
+                    <h2>{ticket.organizer}</h2>
+                    <p className="place">{ticket.location}</p>
+                    <p >{ticket.name}</p>
+                  </T.CardContent>
+                </T.Card>
+              )
+            })) : (
+              <div>No Tickets Found</div>
+            )
           )
-        })}
+        }
       </T.CardContainer>
       <ModalPortal isOpen={isModalOpen} onClose={closeModal} isNextStepClicked={isNextStepClicked}>
         {!isNextStepClicked ? (
           <T.PreNextStepContent>
             <T.ModalImageContainer>
-              <Image src={selectedItem?.poster || DefaultImg} alt="poster" fill={true} quality={100}  />
+              <Image src={selectedItem?.bannerUrl || DefaultImg} alt="poster" fill={true} quality={100} />
             </T.ModalImageContainer>
             <T.ModalRight>
               <div>
                 <div>
-                  <h1>{selectedItem?.title}</h1>
-                  <p>{selectedItem?.owner}</p>
+                  <h1>{selectedItem?.name}</h1>
+                  <p>{selectedItem?.organizer}</p>
                 </div>
-                <p>{selectedItem?.desc}</p>
+                <p>{selectedItem?.description}</p>
               </div>
               <T.CalendarContainer>
                 <S.CalendarBox>
@@ -140,11 +187,11 @@ const Ticket = () => {
               // </T.QrcodeContainer>
               <T.PurchaseContainer>
                 <T.ModalImageContainer className="purchaseImg">
-                  <Image src={selectedItem?.poster || DefaultImg} alt="poster" fill={true} quality={100}  />
+                  <Image src={selectedItem?.bannerUrl || DefaultImg} alt="poster" fill={true} quality={100} />
                 </T.ModalImageContainer>
                 <T.PurchaseInfo>
-                  <p>{selectedItem?.title}</p>
-                  <p>{selectedItem?.desc}</p>
+                  <p>{selectedItem?.name}</p>
+                  <p>{selectedItem?.description}</p>
                 </T.PurchaseInfo>
                 <T.PurchasePrice>
                   <p>Price</p>
@@ -154,7 +201,7 @@ const Ticket = () => {
               </T.PurchaseContainer>
             )}
           </T.PostNextStepContent>
-          
+
         )}
       </ModalPortal>
     </T.TicketContainer>
