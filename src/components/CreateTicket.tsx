@@ -2,13 +2,15 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useRouter } from 'next/router';
 import Image from 'next/image';
 import Swal from 'sweetalert2';
-import { useMutation } from 'react-query';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 import * as C from '@/styles/CreateTicket.styles';
 import * as S from '@/styles/styled';
 import axios, { AxiosError } from 'axios';
 import { authContext } from '@/context/providers';
+import { useContractEvent, useContractInfiniteReads, useContractRead, useContractWrite, usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
+import { HeroTicketAbi } from '@/assets/abi/abi';
+import { prepareWriteContract, readContract, writeContract } from 'wagmi/actions';
 
 interface IFile extends File {
   file?: File;
@@ -68,15 +70,128 @@ const EXTENSIONS = [
   { type: 'mp4' },
 ];
 
+function useDebounce<T>(value: T, delay?: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value)
 
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay || 500)
+
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [value, delay])
+
+  return debouncedValue
+}
 
 const CreateTicket = () => {
-  //const createTicketMutation = useCreateTicket();
-
   const { isLoading, isLoggedIn, isRegistered, addressMatched, accessToken, userInfo } = useContext(authContext);
+  const [keyword, setKeyword] = useState<string>('');
+  const debouncedKeyword = useDebounce(keyword, 500);
+  const [requestId, setRequestId] = useState<`0x${string}`>('0x00');
+  const [ipfsHash, setIpfsHash] = useState<string>('');
+  const [ticketImageUrl, setTicketImageUrl] = useState<string>('');
+
+  const { config } = usePrepareContractWrite({
+    address: '0x0310F71bf9631d8DaB3e70181250a223411e867c',
+    abi: HeroTicketAbi,
+    functionName: 'requestTicketImage',
+    args: [`0x${process.env.NEXT_PUBLIC_ENCRYPTED_SECRET}`, "Virtual", debouncedKeyword],
+    enabled: debouncedKeyword !== '',
+  });
+
+  const { data, write, isError, error } = useContractWrite(config);
+
+  const { data: receipt, isLoading: isTxLoading, isSuccess } = useWaitForTransaction({
+    hash: data?.hash,
+  })
+
+  const eventSigHash = '0xa65f4c2bddbaa2fb5b8e03388cfd799b0402d2f3c92fc80b5f1c8f10922376e2';
+
+  useEffect(() => {
+    if (isSuccess && receipt) {
+      const event = receipt.logs.find((log) => log.topics[0] === eventSigHash);
+
+      const requestId = event?.topics[1] || '';
+
+      console.log('requestId', requestId);
+
+      if (!requestId) {
+        return;
+      }
+
+      setRequestId(requestId);
+
+      Swal.fire({
+        title: 'Success',
+        text: `Success! Your request id is ${requestId}`,
+        icon: 'success',
+        confirmButtonText: 'OK'
+      });
+    }
+  }, [isSuccess, receipt]);
+
+  const handleLoadTicketImage = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    console.log('requestId', requestId);
+
+    if (requestId === '0x00') {
+      Swal.fire({
+        title: 'Error',
+        text: 'Request ID is required to load ticket image.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
+    try {
+      const data = await readContract({
+        abi: HeroTicketAbi,
+        address: '0x0310F71bf9631d8DaB3e70181250a223411e867c',
+        functionName: 'requests',
+        args: [requestId] as const,
+      })
+
+      if (data && data[4]) {
+        const ipfsHash = data[3];
+
+        const response = await axios.get(`https://ipfs.io/ipfs/${ipfsHash}`);
+
+        if (response.status !== 200) {
+          throw new Error('IPFS Hash is not valid.');
+        }
+
+        const responseData = response.data;
+
+        if (responseData && responseData.url) {
+          setTicketImageUrl(responseData.url);
+          setIpfsHash(ipfsHash);
+
+          Swal.fire({
+            title: 'Success',
+            text: 'Success! Ticket image is loaded.',
+            icon: 'success',
+            confirmButtonText: 'OK'
+          });
+        } else {
+          throw new Error('IPFS Hash is not valid.');
+        }
+      } else {
+        throw new Error('Please request ticket image first or wait for the request to be processed.');
+      }
+    } catch (error: any) {
+      Swal.fire({
+        title: 'Error',
+        text: `Error! ${error?.message}`,
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+    }
+  }
 
   const router = useRouter();
-  const [uploadFile, setUploadFile] = useState(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [ticketFile, setTicketFile] = useState<IFile | null>(null);
   const [bannerFileUrl, setBannerFileUrl] = useState<IFile | null>(null);
@@ -117,7 +232,17 @@ const CreateTicket = () => {
     }
   };
 
+  const handleRequestTicketImage = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    write?.()
+
+    setRequestId('0x00');
+    setIpfsHash('');
+  }
+
   const handleCreateTicket = async (ticketData: CreateTicketData): Promise<TicketCollection> => {
+    'use server'
     const formData = new FormData();
     formData.append('name', ticketData.name);
     formData.append('symbol', ticketData.symbol);
@@ -158,6 +283,11 @@ const CreateTicket = () => {
       return;
     }
 
+    if (!ipfsHash) {
+      // IPFS 해시가 없으면 함수를 종료
+      return;
+    }
+
     const ticketData: CreateTicketData = {} as CreateTicketData;
 
     ticketData.accessToken = accessToken;
@@ -168,7 +298,7 @@ const CreateTicket = () => {
     ticketData.location = (document.getElementById('location') as HTMLInputElement).value;
     ticketData.date = (document.getElementById('date') as HTMLInputElement).value;
     ticketData.bannerImage = bannerFile;
-    ticketData.ticketUri = "QmaMmMmMkzYgSLQBDTVkyms4zgMRkZyw5MmUCZ6okN7zP4";
+    ticketData.ticketUri = ipfsHash;
     ticketData.ethPrice = Number((document.getElementById('eth-price') as HTMLInputElement).value);
     ticketData.tokenPrice = Number((document.getElementById('token-price') as HTMLInputElement).value);
     ticketData.totalSupply = Number((document.getElementById('total') as HTMLInputElement).value);
@@ -241,83 +371,139 @@ const CreateTicket = () => {
   }
 
   return (
-    <C.FormContainer onSubmit={handleSubmit}>
-      <C.ImageInputContainer>
-        <C.CreateImageContainer htmlFor='ticket-banner'>
-          <div>
-            {bannerFileUrl && bannerFileUrl.preview ? (
-              <Image src={bannerFileUrl.preview} alt='Banner Preview' layout='responsive' width={100} height={100} quality={100} />
-            ) : (
-              <FontAwesomeIcon icon={faImage} />
-            )}
-            <input id='ticket-banner' type='file' accept='image/*' onChange={fileUpload} hidden required />
-          </div>
-        </C.CreateImageContainer>
-        <C.CreateImageContainer htmlFor='ticket'>
-          <div>
-            {ticketFileUrl && ticketFileUrl.preview ? (
-              <Image src={ticketFileUrl.preview} alt='Ticket Preview' layout='responsive' width={100} height={100} quality={100} />
-            ) : (
-              <FontAwesomeIcon icon={faImage} />
-            )}
-            <input id='ticket' type='file' accept='image/*' onChange={fileUpload} hidden />
-          </div>
-        </C.CreateImageContainer>
-      </C.ImageInputContainer>
-      <C.InputWrap>
-        <C.InputContainer>
-          <div>
-            <label htmlFor='name'>Name <span>*</span></label>
-            <input type='text' placeholder='Name' id='name' required />
-          </div>
-          <div>
-            <label htmlFor='symbol'>Symbol <span>*</span></label>
-            <input type='text' placeholder='symbol' id='symbol' required />
-          </div>
-        </C.InputContainer>
-        <C.InputContainer>
-          <div>
-            <label htmlFor='organizer'>Organizer <span>*</span></label>
-            <input type='text' placeholder='organizer' id='organizer' required />
-          </div>
-          <div>
-            <label htmlFor='location'>Location <span>*</span></label>
-            <input type='text' placeholder='location' id='location' required />
-          </div>
-        </C.InputContainer>
-        <C.InputContainer>
-          <div>
-            <label htmlFor='date'>Date <span>*</span></label>
-            <input type='date' placeholder='date' id='date' required />
-          </div>
-          <div>
-            <label htmlFor='total'>Ticket Total Supply <span>*</span></label>
-            <input type='number' placeholder='Ticket Total Supply' id='total' required min={1} step={1} />
-          </div>
-        </C.InputContainer>
-        <C.InputContainer>
-          <div>
-            <label htmlFor='eth-price'>ETH Price <span>*</span></label>
-            <input type='number' placeholder='ETH Price in Gwei' id='eth-price' step={0.1} required min={1} />
-          </div>
-          <div>
-            <label htmlFor='token-price'>Token Price <span>*</span></label>
-            <input type='number' placeholder='Token Price' id='token-price' step={1} required min={1} />
-          </div>
-        </C.InputContainer>
-        <C.InputContainer>
-          <div>
-            <label htmlFor='sale-duration'>Sale Duration <span>*</span></label>
-            <input type='number' placeholder='Sale Duration' id='sale-duration' step={1} required min={1} />
-          </div>
-        </C.InputContainer>
-        <C.TextContainer>
-          <label htmlFor='desc'>Description <span>*</span></label>
-          <textarea placeholder='Description' id='desc' required />
-        </C.TextContainer>
-      </C.InputWrap>
-      <S.ButtonStyle type='submit'>Create</S.ButtonStyle>
-    </C.FormContainer>
+    <>
+      <C.FormContainer onSubmit={handleRequestTicketImage}>
+        <C.ImageInputContainer>
+          <C.CreateImageContainer htmlFor='ticket'>
+            <div>
+              {ticketImageUrl ? (
+                <Image src={ticketImageUrl} alt='Ticket Preview' layout='responsive' width={100} height={100} quality={100} />
+              ) : (
+                <FontAwesomeIcon icon={faImage} />
+              )}
+              <input id='ticket' type='file' accept='image/*' onChange={fileUpload} hidden />
+            </div>
+          </C.CreateImageContainer>
+        </C.ImageInputContainer>
+        <C.InputWrap>
+          <C.InputContainer>
+            <div>
+              <label htmlFor='keyword'>Keyword <span>*</span></label>
+              <input type='text' placeholder='Keyword' id='keyword' required value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+            </div>
+          </C.InputContainer>
+          {isSuccess && (
+            <C.InputContainer>
+              <div>
+                <label htmlFor='request-hash'>Request Hash <span>*</span></label>
+                <input type='text' placeholder='Request Hash' id='request-hash' required value={data?.hash} readOnly />
+              </div>
+            </C.InputContainer>
+          )}
+          {isError && (
+            <C.InputContainer>
+              <div>
+                <label htmlFor='request-hash'>Error <span>*</span></label>
+                <input type='text' placeholder='Error' id='request-hash' required value={error?.message} readOnly />
+              </div>
+            </C.InputContainer>
+          )}
+          {
+            requestId !== '0x00' && (
+              <C.InputContainer>
+                <div>
+                  <label htmlFor='request-id'>Request ID <span>*</span></label>
+                  <input type='text' placeholder='Request ID' id='request-id' required value={requestId} readOnly />
+                </div>
+              </C.InputContainer>
+            )
+          }
+          {ipfsHash && (
+            <C.InputContainer>
+              <div>
+                <label htmlFor='ipfs-hash'>IPFS Hash <span>*</span></label>
+                <input type='text' placeholder='IPFS Hash' id='ipfs-hash' required value={ipfsHash} readOnly />
+              </div>
+            </C.InputContainer>
+          )}
+        </C.InputWrap>
+        <div>
+          <S.ButtonStyle disabled={!write || isTxLoading} type='submit'>{isTxLoading ? "Sending Tx..." : "Request Ticket Image"}</S.ButtonStyle>
+          {" "}
+          <S.ButtonStyle onClick={handleLoadTicketImage}>Load Ticket Image</S.ButtonStyle>
+        </div>
+      </C.FormContainer>
+
+      <hr />
+
+      <C.FormContainer onSubmit={handleSubmit}>
+        <C.ImageInputContainer>
+          <C.CreateImageContainer htmlFor='ticket-banner'>
+            <div>
+              {bannerFileUrl && bannerFileUrl.preview ? (
+                <Image src={bannerFileUrl.preview} alt='Banner Preview' layout='responsive' width={100} height={100} quality={100} />
+              ) : (
+                <FontAwesomeIcon icon={faImage} />
+              )}
+              <input id='ticket-banner' type='file' accept='image/*' onChange={fileUpload} hidden required />
+            </div>
+          </C.CreateImageContainer>
+        </C.ImageInputContainer>
+        <C.InputWrap>
+          <C.InputContainer>
+            <div>
+              <label htmlFor='name'>Name <span>*</span></label>
+              <input type='text' placeholder='Name' id='name' required />
+            </div>
+            <div>
+              <label htmlFor='symbol'>Symbol <span>*</span></label>
+              <input type='text' placeholder='symbol' id='symbol' required />
+            </div>
+          </C.InputContainer>
+          <C.InputContainer>
+            <div>
+              <label htmlFor='organizer'>Organizer <span>*</span></label>
+              <input type='text' placeholder='organizer' id='organizer' required />
+            </div>
+            <div>
+              <label htmlFor='location'>Location <span>*</span></label>
+              <input type='text' placeholder='location' id='location' required />
+            </div>
+          </C.InputContainer>
+          <C.InputContainer>
+            <div>
+              <label htmlFor='date'>Date <span>*</span></label>
+              <input type='date' placeholder='date' id='date' required />
+            </div>
+            <div>
+              <label htmlFor='total'>Ticket Total Supply <span>*</span></label>
+              <input type='number' placeholder='Ticket Total Supply' id='total' required min={1} step={1} />
+            </div>
+          </C.InputContainer>
+          <C.InputContainer>
+            <div>
+              <label htmlFor='eth-price'>ETH Price <span>*</span></label>
+              <input type='number' placeholder='ETH Price in Gwei' id='eth-price' step={0.1} required min={1} />
+            </div>
+            <div>
+              <label htmlFor='token-price'>Token Price <span>*</span></label>
+              <input type='number' placeholder='Token Price' id='token-price' step={1} required min={1} />
+            </div>
+          </C.InputContainer>
+          <C.InputContainer>
+            <div>
+              <label htmlFor='sale-duration'>Sale Duration <span>*</span></label>
+              <input type='number' placeholder='Sale Duration' id='sale-duration' step={1} required min={1} />
+            </div>
+          </C.InputContainer>
+          <C.TextContainer>
+            <label htmlFor='desc'>Description <span>*</span></label>
+            <textarea placeholder='Description' id='desc' required />
+          </C.TextContainer>
+        </C.InputWrap>
+        <S.ButtonStyle type='submit'>Create</S.ButtonStyle>
+      </C.FormContainer>
+    </>
   )
 }
 
