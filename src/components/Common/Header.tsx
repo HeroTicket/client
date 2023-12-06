@@ -9,7 +9,7 @@ import { useAccount, useDisconnect } from 'wagmi';
 import PolygonIDVerifier from '@/components/PolygonIDVerifier';
 import { Logo, ModalPortal } from './Reference';
 import * as H from '@/styles/Header.styles';
-import { authContext } from '@/pages/providers';
+import { authContext } from '@/context/providers';
 import Swal from 'sweetalert2';
 
 

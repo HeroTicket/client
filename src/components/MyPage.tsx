@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 import * as T from '@/styles/Ticket.styles';
 import * as M from '@/styles/MyPage.styles';
 import { MainImg } from './Common/Reference';
-import { authContext } from '@/pages/providers';
+import { authContext } from '@/context/providers';
 
 const dummyData = [
   { 'id': 1, 'poster': 'http://ticketimage.interpark.com/TCMS3.0/CO/HOT/2310/231030015704_23014028.gif', 'owner': 'voluptatem', 'place': 'occaecati', 'title': 'quo optio et', 'desc': 'Fugiat enim a reprehenderit. Quis repellendus culpa non exercitationem. Illo est repudiandae. Qui ullam et molestiae aut. Commodi aliquid facilis perspiciatis minima illo itaque.Fugiat enim a reprehenderit. Quis repellendus culpa non exercitationem. Illo est repudiandae. Qui ullam et molestiae aut. Commodi aliquid facilis perspiciatis minima illo itaque.' },

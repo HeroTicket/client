@@ -18,6 +18,7 @@ import {
 import { publicProvider } from 'wagmi/providers/public';
 import axios, { AxiosError } from 'axios';
 import { QueryClient, QueryClientProvider, useMutation, useQuery } from 'react-query';
+import { alchemyProvider } from 'wagmi/providers/alchemy';
 // ==================== Interfaces ====================
 
 interface UserInfo {
@@ -132,6 +133,7 @@ function AuthProvider({ children }: { children: React.ReactNode }) {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
+      timeout: 180000, // 3분
     });
 
     if (response.status !== 201) {
@@ -242,7 +244,7 @@ function QueryProvider({ children }: { children: React.ReactNode }) {
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [polygonMumbai],
-  [publicProvider()]
+  [alchemyProvider({ apiKey: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || '' }), publicProvider()]
 );
 
 const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_ID || '';
