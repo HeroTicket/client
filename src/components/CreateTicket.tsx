@@ -93,7 +93,7 @@ const CreateTicket = () => {
   const [ticketImageUrl, setTicketImageUrl] = useState<string>('');
 
   const { config } = usePrepareContractWrite({
-    address: '0x0310F71bf9631d8DaB3e70181250a223411e867c',
+    address: process.env.NEXT_PUBLIC_HERO_TICKET_ADDRESS as `0x${string}`,
     abi: HeroTicketAbi,
     functionName: 'requestTicketImage',
     args: [`0x${process.env.NEXT_PUBLIC_ENCRYPTED_SECRET}`, "Virtual", debouncedKeyword],
@@ -149,10 +149,22 @@ const CreateTicket = () => {
     try {
       const data = await readContract({
         abi: HeroTicketAbi,
-        address: '0x0310F71bf9631d8DaB3e70181250a223411e867c',
+        address: process.env.NEXT_PUBLIC_HERO_TICKET_ADDRESS as `0x${string}`,
         functionName: 'requests',
         args: [requestId] as const,
       })
+
+      if (data && !data[0]) {
+        console.log('data', data);
+        Swal.fire({
+          title: 'Failed',
+          text: 'Failed to generate ticket image... Please try again...',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+
+        return;
+      }
 
       if (data && data[4]) {
         const ipfsHash = data[3];

@@ -242,7 +242,7 @@ const Ticket = () => {
             </T.PreNextStepContent>
           ) : (
             <T.PostNextStepContent>
-              {buyByMatic && <MaticPurchase contractAddress={selectedItem.contractAddress} handlePurchaseCallback={handlePurchaseCallback} />}
+              {buyByMatic && <MaticPurchase contractAddress={selectedItem.contractAddress} ticketPrice={selectedItem.ethPrice} handlePurchaseCallback={handlePurchaseCallback} />}
               {buyByToken && <TokenPurchase contractAddress={selectedItem.contractAddress} handlePurchaseCallback={handlePurchaseCallback} />}
             </T.PostNextStepContent>
 
