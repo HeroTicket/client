@@ -110,6 +110,10 @@ export const TicketBtn = styled(ButtonStyle)`
   width: 90%;
   box-sizing: border-box;
   padding: 0.5rem 4rem;
+  &:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
 `;
 
 export const ModalImageContainer = styled(CardImgContainer)`
@@ -127,7 +131,7 @@ export const ModalRight = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  gap: 2em;
+  gap: 1em;
 
   > div:first-child {
     min-height: 200px;
@@ -157,6 +161,16 @@ export const ModalRight = styled.div`
   }
 `;
 
+export const ModalRightHeader = styled.div`
+  width: 100%;
+  display: flex;
+  align-items: center;
+`;
+
+export const ModalRightContent = styled.div`
+  width:  100%;
+`;
+
 export const CalendarContainer = styled.div`
   display: flex;
   align-items: center;
@@ -168,6 +182,7 @@ export const PreNextStepContent = styled.div`
   justify-content: center;
   align-items: center;
   gap: 3rem;
+  min-width: 680px;
 `;
 
 export const PostNextStepContent = styled.div`

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import QRCode from "react-qr-code";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
@@ -8,7 +8,7 @@ import Link from "next/link";
 interface PolygonIDProps {
   accountAddress?: string;
   credentialType: string;
-  loginHandler?: (tokenPair: any) => void;
+  loginHandler: (tokenPair: any) => void;
 
 }
 
@@ -126,7 +126,7 @@ const PolygonIDVerifier = ({
             const jwtTokenPair = currentSocketEvent.data;
 
             setTimeout(() => {
-              loginHandler!(jwtTokenPair);
+              loginHandler(jwtTokenPair);
             }, 3000);
             socket.current?.close();
           } else {

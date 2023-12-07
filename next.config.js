@@ -15,6 +15,11 @@ const nextConfig = {
         protocol: 'https',
         hostname: "oaidalleapiprodscus.blob.core.windows.net",
         port: ''
+      },
+      {
+        protocol: 'https',
+        hostname: 'ipfs.io',
+        port: ''
       }
     ],
   },

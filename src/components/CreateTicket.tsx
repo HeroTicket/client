@@ -93,7 +93,7 @@ const CreateTicket = () => {
   const [ticketImageUrl, setTicketImageUrl] = useState<string>('');
 
   const { config } = usePrepareContractWrite({
-    address: '0x0310F71bf9631d8DaB3e70181250a223411e867c',
+    address: process.env.NEXT_PUBLIC_HERO_TICKET_ADDRESS as `0x${string}`,
     abi: HeroTicketAbi,
     functionName: 'requestTicketImage',
     args: [`0x${process.env.NEXT_PUBLIC_ENCRYPTED_SECRET}`, "Virtual", debouncedKeyword],
@@ -149,10 +149,22 @@ const CreateTicket = () => {
     try {
       const data = await readContract({
         abi: HeroTicketAbi,
-        address: '0x0310F71bf9631d8DaB3e70181250a223411e867c',
+        address: process.env.NEXT_PUBLIC_HERO_TICKET_ADDRESS as `0x${string}`,
         functionName: 'requests',
         args: [requestId] as const,
       })
+
+      if (data && !data[0]) {
+        console.log('data', data);
+        Swal.fire({
+          title: 'Failed',
+          text: 'Failed to generate ticket image... Please try again...',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+
+        return;
+      }
 
       if (data && data[4]) {
         const ipfsHash = data[3];
@@ -483,7 +495,7 @@ const CreateTicket = () => {
           <C.InputContainer>
             <div>
               <label htmlFor='eth-price'>ETH Price <span>*</span></label>
-              <input type='number' placeholder='ETH Price in Gwei' id='eth-price' step={0.1} required min={1} />
+              <input type='number' placeholder='ETH Price in wei' id='eth-price' step={1} required min={1000000000} />
             </div>
             <div>
               <label htmlFor='token-price'>Token Price <span>*</span></label>
