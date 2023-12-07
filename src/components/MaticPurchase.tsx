@@ -1,10 +1,13 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef, Dispatch, SetStateAction, useContext } from "react";
 import QRCode from "react-qr-code";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowUpRightFromSquare } from "@fortawesome/free-solid-svg-icons";
 import * as P from '@/styles/PolygonID.styles';
+import Link from "next/link";
 import { authContext } from '@/context/providers';
 import axios from 'axios';
 
-interface TokenPurchaseProps {
+interface MaticPurchaseProps {
     contractAddress: string;
     handlePurchaseCallback: () => void;
 }
@@ -32,10 +35,10 @@ interface SocketEvent {
     data: any;
 }
 
-const TokenPurchase = ({
+const MaticPurchase = ({
     contractAddress,
     handlePurchaseCallback,
-}: TokenPurchaseProps) => {
+}: MaticPurchaseProps) => {
     const { accessToken } = useContext(authContext);
 
     const [sessionId, setSessionId] = useState<string>("");
@@ -49,7 +52,7 @@ const TokenPurchase = ({
     const socket = useRef<WebSocket | null>(null);
 
     const getQrCodeApi = (sessionId: string) => {
-        return process.env.NEXT_PUBLIC_SERVER_URL + `/tickets/${contractAddress}/token-purchase-qr?sessionId=${sessionId}`;
+        return process.env.NEXT_PUBLIC_SERVER_URL + `/tickets/${contractAddress}/whitelist-qr?sessionId=${sessionId}`;
     }
 
     // Connect to websocket on component mount
@@ -122,7 +125,7 @@ const TokenPurchase = ({
 
             console.log(currentSocketEvent)
 
-            if (currentSocketEvent.name === 'token-purchase-callback') {
+            if (currentSocketEvent.name === 'whitelist-callback') {
                 if (currentSocketEvent.status === 'IN_PROGRESS') {
                     setIsHandlingVerification(true);
                 } else {
@@ -187,4 +190,4 @@ const TokenPurchase = ({
     );
 }
 
-export default TokenPurchase;
+export default MaticPurchase;

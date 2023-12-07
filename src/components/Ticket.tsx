@@ -13,6 +13,8 @@ import { formatEther } from 'viem';
 import { authContext } from '@/context/providers';
 import Swal from 'sweetalert2';
 import TokenPurchase from './TokenPurchase';
+import MaticPurchase from './MaticPurchase';
+import { useRouter } from 'next/router';
 
 /*
 const dummyData = [
@@ -95,7 +97,9 @@ const Ticket = () => {
   const [buyByToken, setBuyByToken] = useState<boolean>(false);
 
 
-  const { isLoggedIn, isRegistered, addressMatched, userInfo } = useContext(authContext);
+  const { isLoggedIn, isRegistered, addressMatched, userInfo, accessToken } = useContext(authContext);
+
+  const router = useRouter();
 
   const openModal = (data: TicketCollection) => {
     setSelectedItem(data);
@@ -131,12 +135,9 @@ const Ticket = () => {
     setBuyByToken(true);
   }
 
-  const handleBuyByMaticCallback = () => {
-
-  }
-
-  const handleBuyByTokenCallback = () => {
+  const handlePurchaseCallback = () => {
     closeModal();
+    router.reload();
   }
 
   const fetchTicketCollection = async (): Promise<TicketCollection[]> => {
@@ -150,7 +151,11 @@ const Ticket = () => {
   };
 
   const fetchTicketCollectionDetail = async (contractAddress: string): Promise<TicketCollectionDetail> => {
-    const response = await axios.get<GetTicketCollectionDetailResponse>(`${process.env.NEXT_PUBLIC_SERVER_URL}/tickets/${contractAddress}`);
+    const response = await axios.get<GetTicketCollectionDetailResponse>(`${process.env.NEXT_PUBLIC_SERVER_URL}/tickets/${contractAddress}`, {
+      headers: accessToken ? {
+        Authorization: `Bearer ${accessToken}`
+      } : undefined
+    });
 
     if (response.data.status !== 200) {
       throw new Error(response.data.message);
@@ -237,30 +242,8 @@ const Ticket = () => {
             </T.PreNextStepContent>
           ) : (
             <T.PostNextStepContent>
-              {buyByMatic && <p>Bought by Matic</p>}
-              {buyByToken && <TokenPurchase contractAddress={selectedItem.contractAddress} handleBuyByTokenCallback={handleBuyByTokenCallback} />}
-              {/* {!isPolygonBtn ? (
-                <T.TicketBtn onClick={() => setIsPolygonBtn(true)}>Polygon ID authentication request</T.TicketBtn>
-              ) : (
-                // <T.QrcodeContainer>
-                //   <FontAwesomeIcon icon={faQrcode} className='qrcode' />
-                //   <p>Scan the QR code to complete authentication.</p>
-                // </T.QrcodeContainer>
-                <T.PurchaseContainer>
-                  <T.ModalImageContainer className="purchaseImg">
-                    <Image src={selectedItem.bannerUrl || DefaultImg} alt="poster" fill={true} quality={100} />
-                  </T.ModalImageContainer>
-                  <T.PurchaseInfo>
-                    <p>{selectedItem?.name}</p>
-                    <p>{selectedItem?.description}</p>
-                  </T.PurchaseInfo>
-                  <T.PurchasePrice>
-                    <p>Price</p>
-                    <p>0.2 Token</p>
-                  </T.PurchasePrice>
-                  <T.TicketBtn>PayMents</T.TicketBtn>
-                </T.PurchaseContainer>
-              )} */}
+              {buyByMatic && <MaticPurchase contractAddress={selectedItem.contractAddress} handlePurchaseCallback={handlePurchaseCallback} />}
+              {buyByToken && <TokenPurchase contractAddress={selectedItem.contractAddress} handlePurchaseCallback={handlePurchaseCallback} />}
             </T.PostNextStepContent>
 
           )}
