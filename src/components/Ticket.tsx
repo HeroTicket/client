@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faQrcode } from '@fortawesome/free-solid-svg-icons';
@@ -9,6 +9,8 @@ import * as T from '@/styles/Ticket.styles';
 import * as S from '@/styles/Calendar.styles';
 import axios from 'axios';
 import { useQuery } from 'react-query';
+import { formatEther } from 'viem';
+import { authContext } from '@/context/providers';
 
 /*
 const dummyData = [
@@ -54,37 +56,45 @@ interface TicketCollection {
   updatedAt: number;
 }
 
-interface GetTicketCollectionResponse {
+interface TicketCollectionDetail extends TicketCollection {
+  userHasTicket: boolean;
+}
+
+interface GetTicketCollectionsResponse {
   status: number;
   message: string;
   data: TicketCollection[];
 }
 
+interface GetTicketCollectionDetailResponse {
+  status: number;
+  message: string;
+  data: TicketCollectionDetail;
+}
 
 type ValuePiece = Date | null;
 
 export type Value = ValuePiece | [ValuePiece, ValuePiece];
 
+const unixTimeToDateString = (unixTime: number): string => {
+  const date = new Date(unixTime * 1000);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  return `${year}-${month}-${day}`;
+}
+
 const Ticket = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<TicketCollection | null>(null);
-  const [value, setValue] = useState<Value>(new Date());
-  const [isNextStepClicked, setIsNextStepClicked] = useState<boolean>(false);
+  const [hasTicket, setHasTicket] = useState<boolean>(false);
+  const [buyByMatic, setBuyByMatic] = useState<boolean>(false);
+  const [buyByToken, setBuyByToken] = useState<boolean>(false);
+
   const [isPolygonBtn, setIsPolygonBtn] = useState<boolean>(false);
 
-  const handleDateChange = (newValue: Value) => {
-    setValue(newValue);
-  };
-
-  const availableDates = [
-    new Date(2023, 11, 7).getTime(), // 12월 7일
-    new Date(2023, 11, 8).getTime(), // 12월 8일
-    new Date(2023, 11, 9).getTime(), // 12월 9일
-  ];
-
-  const isDisabled = ({ date, view }: { date: Date; view: string }): boolean => {
-    return view === 'month' && !availableDates.includes(date.getTime());
-  };
+  const { isLoggedIn, isRegistered, addressMatched } = useContext(authContext);
 
   const openModal = (data: TicketCollection) => {
     setSelectedItem(data);
@@ -93,7 +103,8 @@ const Ticket = () => {
   }
   const closeModal = () => {
     setIsModalOpen(false);
-    setIsNextStepClicked(false);
+    setBuyByMatic(false);
+    setBuyByToken(false);
     setIsPolygonBtn(false);
     document.body.style.overflow = "unset";
     setTimeout(() => {
@@ -101,12 +112,26 @@ const Ticket = () => {
     }, 300); // 300ms는 애니메이션 지속 시간과 일치시킵니다.
   }
 
-  const handleNextStepClick = () => {
-    setIsNextStepClicked(true);
+  const handleBuyByMatic = () => {
+    setBuyByMatic(true);
+  }
+
+  const handleBuyByToken = () => {
+    setBuyByToken(true);
   }
 
   const fetchTicketCollection = async (): Promise<TicketCollection[]> => {
-    const response = await axios.get<GetTicketCollectionResponse>(`${process.env.NEXT_PUBLIC_SERVER_URL}/tickets`);
+    const response = await axios.get<GetTicketCollectionsResponse>(`${process.env.NEXT_PUBLIC_SERVER_URL}/tickets`);
+
+    if (response.data.status !== 200) {
+      throw new Error(response.data.message);
+    }
+
+    return response.data.data;
+  };
+
+  const fetchTicketCollectionDetail = async (contractAddress: string): Promise<TicketCollectionDetail> => {
+    const response = await axios.get<GetTicketCollectionDetailResponse>(`${process.env.NEXT_PUBLIC_SERVER_URL}/tickets/${contractAddress}`);
 
     if (response.data.status !== 200) {
       throw new Error(response.data.message);
@@ -116,6 +141,17 @@ const Ticket = () => {
   };
 
   const ticketsQuery = useQuery<TicketCollection[], Error>('tickets', fetchTicketCollection);
+
+  const ticketDetailQuery = useQuery<TicketCollectionDetail, Error>(
+    ['ticketDetail', isLoggedIn, isRegistered, selectedItem?.contractAddress],
+    () => fetchTicketCollectionDetail(selectedItem?.contractAddress || ''),
+    {
+      enabled: isLoggedIn && isRegistered && !!selectedItem?.contractAddress,
+      onSuccess: (data) => {
+        setHasTicket(data.userHasTicket);
+      }
+    }
+  );
 
   return (
     <T.TicketContainer>
@@ -148,62 +184,73 @@ const Ticket = () => {
           )
         }
       </T.CardContainer>
-      <ModalPortal isOpen={isModalOpen} onClose={closeModal} isNextStepClicked={isNextStepClicked}>
-        {!isNextStepClicked ? (
-          <T.PreNextStepContent>
-            <T.ModalImageContainer>
-              <Image src={selectedItem?.bannerUrl || DefaultImg} alt="poster" fill={true} quality={100} />
-            </T.ModalImageContainer>
-            <T.ModalRight>
-              <div>
+      {/* Modal */}
+      {selectedItem && (
+        <ModalPortal isOpen={isModalOpen} onClose={closeModal} isNextStepClicked={buyByMatic || buyByToken}>
+          {(!buyByMatic && !buyByToken) ? (
+            <T.PreNextStepContent>
+              <T.ModalImageContainer>
+                <Image src={selectedItem?.bannerUrl || DefaultImg} alt="poster" fill={true} quality={100} />
+              </T.ModalImageContainer>
+              <T.ModalRight>
                 <div>
-                  <h1>{selectedItem?.name}</h1>
-                  <p>{selectedItem?.organizer}</p>
+                  <h1>{selectedItem.name}</h1>
+                  <p>{selectedItem.description}</p>
                 </div>
-                <p>{selectedItem?.description}</p>
-              </div>
-              <T.CalendarContainer>
-                <S.CalendarBox>
-                  <S.StyleCalendar
-                    locale='en'
-                    onChange={handleDateChange}
-                    value={value}
-                    tileDisabled={isDisabled}
-                    calendarType='hebrew'
-                  />
-                </S.CalendarBox>
-              </T.CalendarContainer>
-              <T.TicketBtn onClick={handleNextStepClick}>Next Step</T.TicketBtn>
-            </T.ModalRight>
-          </T.PreNextStepContent>
-        ) : (
-          <T.PostNextStepContent>
-            {!isPolygonBtn ? (
-              <T.TicketBtn onClick={() => setIsPolygonBtn(true)}>Polygon ID authentication request</T.TicketBtn>
-            ) : (
-              // <T.QrcodeContainer>
-              //   <FontAwesomeIcon icon={faQrcode} className='qrcode' />
-              //   <p>Scan the QR code to complete authentication.</p>
-              // </T.QrcodeContainer>
-              <T.PurchaseContainer>
-                <T.ModalImageContainer className="purchaseImg">
-                  <Image src={selectedItem?.bannerUrl || DefaultImg} alt="poster" fill={true} quality={100} />
-                </T.ModalImageContainer>
-                <T.PurchaseInfo>
-                  <p>{selectedItem?.name}</p>
-                  <p>{selectedItem?.description}</p>
-                </T.PurchaseInfo>
-                <T.PurchasePrice>
-                  <p>Price</p>
-                  <p>0.2 Token</p>
-                </T.PurchasePrice>
-                <T.TicketBtn>PayMents</T.TicketBtn>
-              </T.PurchaseContainer>
-            )}
-          </T.PostNextStepContent>
+                <div>
+                  <p>When: {selectedItem.date}</p>
+                  <p>Where: {selectedItem.location}</p>
+                  <p>Organizer: {selectedItem.organizer}</p>
+                  <p>Sale Duration: {unixTimeToDateString(selectedItem.saleStartAt)} ~ {unixTimeToDateString(selectedItem.saleEndAt)}</p>
+                  <p>Remaining: {selectedItem.remaining}</p>
+                  <p>Matic Price: {formatEther(BigInt(selectedItem.ethPrice))} Matic</p>
+                  <p>Token Price: {selectedItem.tokenPrice}</p>
+                </div>
+                {selectedItem.remaining === '0' ? (<T.TicketBtn disabled={true}>Sold Out</T.TicketBtn>) : (
+                  (selectedItem.saleEndAt < Date.now() / 1000) ? (<T.TicketBtn disabled={true}>Sale Ended</T.TicketBtn>) : (
+                    (hasTicket) ? (<T.TicketBtn disabled={true}>Already has ticket</T.TicketBtn>) : (
+                      <>
+                        <T.TicketBtn disabled={!(isLoggedIn && isRegistered && addressMatched)} onClick={handleBuyByMatic}>Buy By Matic</T.TicketBtn>
+                        <T.TicketBtn disabled={!(isLoggedIn && isRegistered && addressMatched)} onClick={handleBuyByToken}>Buy By Token</T.TicketBtn>
+                      </>
+                    )))}
+              </T.ModalRight>
+            </T.PreNextStepContent>
+          ) : (
+            <T.PostNextStepContent>
+              {buyByMatic && (
+                <p>Bought by Matic</p>
+              )}
+              {buyByToken && (
+                <p>Bought by Token</p>
+              )}
+              {/* {!isPolygonBtn ? (
+                <T.TicketBtn onClick={() => setIsPolygonBtn(true)}>Polygon ID authentication request</T.TicketBtn>
+              ) : (
+                // <T.QrcodeContainer>
+                //   <FontAwesomeIcon icon={faQrcode} className='qrcode' />
+                //   <p>Scan the QR code to complete authentication.</p>
+                // </T.QrcodeContainer>
+                <T.PurchaseContainer>
+                  <T.ModalImageContainer className="purchaseImg">
+                    <Image src={selectedItem.bannerUrl || DefaultImg} alt="poster" fill={true} quality={100} />
+                  </T.ModalImageContainer>
+                  <T.PurchaseInfo>
+                    <p>{selectedItem?.name}</p>
+                    <p>{selectedItem?.description}</p>
+                  </T.PurchaseInfo>
+                  <T.PurchasePrice>
+                    <p>Price</p>
+                    <p>0.2 Token</p>
+                  </T.PurchasePrice>
+                  <T.TicketBtn>PayMents</T.TicketBtn>
+                </T.PurchaseContainer>
+              )} */}
+            </T.PostNextStepContent>
 
-        )}
-      </ModalPortal>
+          )}
+        </ModalPortal>
+      )}
     </T.TicketContainer>
   )
 }

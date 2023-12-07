@@ -483,7 +483,7 @@ const CreateTicket = () => {
           <C.InputContainer>
             <div>
               <label htmlFor='eth-price'>ETH Price <span>*</span></label>
-              <input type='number' placeholder='ETH Price in Gwei' id='eth-price' step={0.1} required min={1} />
+              <input type='number' placeholder='ETH Price in wei' id='eth-price' step={1} required min={1000000000} />
             </div>
             <div>
               <label htmlFor='token-price'>Token Price <span>*</span></label>
