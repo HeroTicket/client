@@ -29,8 +29,8 @@ export const MyPageImageContainer = styled(ImageContainer)`
 
 export const InfoContainer = styled.div`
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 2rem;
 
   p {
     font-size: 1.5rem;
