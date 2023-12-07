@@ -112,6 +112,9 @@ export const ServiceText = styled.div`
   h1 {
     margin-bottom: 2rem;
   }
+  p {
+    font-size: 1.5rem;
+  }
 `;
 
 export const ServiceCard = styled.div`
