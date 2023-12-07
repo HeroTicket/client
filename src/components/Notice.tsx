@@ -4,42 +4,23 @@ import ModalPortal from './ModalPortal';
 import { Container, Title, ListContainer, ListItem, Pagination, ModalCloseBtn } from '@/styles/styled';
 import { NoticeModalTitleContainer } from '@/styles/Notice.styles';
 
-const dummyData = [
-  {'id': 1, 'title': 'title1', 'content': `In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+interface GetNoticesResponse {
+  status: number;
+  message: string;
+  data: Notices;
+}
 
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
+interface Notices {
+  items: NoticeData[];
+  pagination: Pagination;
 
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.`,
-  'createdAt': '2023.11.11', 'updatedAt': 0},
-  {'id': 2, 'title': 'title2', 'content': 'Et repudiandae exercitationem.', 'createdAt': '2023.11.11', 'updatedAt': 0},
-  {'id': 3, 'title': 'title3', 'content': 'Quisquam ipsam dolorum sit ad.', 'createdAt': '2023.11.11', 'updatedAt': 0},
-  {'id': 4, 'title': 'title4', 'content': 'Sapiente qui ipsum tempore fugit dignissimos iure omnis et.', 'createdAt': '2023.11.11', 'updatedAt': 0},
-  {'id': 5, 'title': 'title5', 'content': 'Sapiente qui ipsum tempore fugit dignissimos iure omnis et.', 'createdAt': '2023.11.11', 'updatedAt': 0},
-]
+}
 
 interface NoticeData {
   id: number;
   title: string;
   content: string;
-  createdAt: string;
+  createdAt: number;
   updatedAt: number;
 }
 
@@ -54,11 +35,19 @@ interface Pagination {
   total: number;
 }
 
+const unixTimeToDateString = (unixTime: number): string => {
+  const date = new Date(unixTime * 1000);
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+
+  return `${year}-${month}-${day}`;
+}
+
 const Notice = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<NoticeData | null>(null);
   const [noticeDataList, setNoticeDataList] = useState<NoticeData[] | null>(null);
-  const [noticeData, setNoticeData] = useState<NoticeData | null>(null);
   const [pagination, setPagination] = useState<Pagination | null>(null);
 
   const openModal = (data: NoticeData) => {
@@ -72,21 +61,16 @@ const Notice = () => {
 
   const noticeList = async () => {
     try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/notices`);
+      const res = await axios.get<GetNoticesResponse>(`${process.env.NEXT_PUBLIC_SERVER_URL}/notices`);
+
+      if (res.status !== 200) {
+        throw new Error(res.data.message);
+      }
 
       setNoticeDataList(res.data.data.items);
-      console.log(res.data.data.items);
-    } catch (error) {
-      console.log(error);
-    }
-  }
+      setPagination(res.data.data.pagination);
 
-  const noticeDetail = async (id: number) => {
-    try {
-      const res = await axios.get(`${process.env.NEXT_PUBLIC_SERVER_URL}/notices/${id}`);
-      setNoticeData(res.data.data);
-
-      console.log(res.data);
+      console.log(res.data.data);
     } catch (error) {
       console.log(error);
     }
@@ -94,7 +78,6 @@ const Notice = () => {
 
   useEffect(() => {
     noticeList();
-    noticeDetail(1);
   }, []);
 
   return (
@@ -103,29 +86,28 @@ const Notice = () => {
         <h1>Notice</h1>
       </Title>
       <ListContainer>
-        {dummyData.map((data) => {
-          return (
-            <ListItem key={data.id} onClick={() => openModal(data)}>
-              <h3>{data.title}</h3>
-              <p>{data.createdAt}</p>
-            </ListItem>
-          )
-        })}
+        {noticeDataList?.length === 0 && <p>There is no notice.</p>}
+        {noticeDataList?.map((data: NoticeData) => (
+          <ListItem key={data.id} onClick={() => openModal(data)}>
+            <h3>{data.title}</h3>
+            <p>{unixTimeToDateString(data.createdAt)}</p>
+          </ListItem>
+        ))}
       </ListContainer>
       <Pagination>
-        <button>이전</button>
-        <button>다음</button>
+        <button>Prev</button>
+        <button>Next</button>
       </Pagination>
-      <ModalPortal isOpen={isModalOpen} onClose={closeModal}>
+      {selectedItem && (<ModalPortal isOpen={isModalOpen} onClose={closeModal}>
         <NoticeModalTitleContainer>
-          <h3>{selectedItem?.title}</h3>
-          <p>{selectedItem?.createdAt}</p>
+          <h3>{selectedItem.title}</h3>
+          <p>{unixTimeToDateString(selectedItem.createdAt)}</p>
         </NoticeModalTitleContainer>
         <div>
-          <p>{selectedItem?.content}</p>
+          <p>{selectedItem.content}</p>
         </div>
         <ModalCloseBtn onClick={closeModal}>Close</ModalCloseBtn>
-      </ModalPortal>
+      </ModalPortal>)}
     </Container>
   )
 }
