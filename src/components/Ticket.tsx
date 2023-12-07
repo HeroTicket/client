@@ -11,6 +11,8 @@ import axios from 'axios';
 import { useQuery } from 'react-query';
 import { formatEther } from 'viem';
 import { authContext } from '@/context/providers';
+import Swal from 'sweetalert2';
+import TokenPurchase from './TokenPurchase';
 
 /*
 const dummyData = [
@@ -92,9 +94,8 @@ const Ticket = () => {
   const [buyByMatic, setBuyByMatic] = useState<boolean>(false);
   const [buyByToken, setBuyByToken] = useState<boolean>(false);
 
-  const [isPolygonBtn, setIsPolygonBtn] = useState<boolean>(false);
 
-  const { isLoggedIn, isRegistered, addressMatched } = useContext(authContext);
+  const { isLoggedIn, isRegistered, addressMatched, userInfo } = useContext(authContext);
 
   const openModal = (data: TicketCollection) => {
     setSelectedItem(data);
@@ -105,7 +106,6 @@ const Ticket = () => {
     setIsModalOpen(false);
     setBuyByMatic(false);
     setBuyByToken(false);
-    setIsPolygonBtn(false);
     document.body.style.overflow = "unset";
     setTimeout(() => {
       setSelectedItem(null);
@@ -117,7 +117,26 @@ const Ticket = () => {
   }
 
   const handleBuyByToken = () => {
+    const tokenBalance = userInfo?.tbaTokenBalance || '0';
+
+    if (Number(tokenBalance) < Number(selectedItem?.tokenPrice)) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: 'Not enough token balance!',
+      });
+      return;
+    }
+
     setBuyByToken(true);
+  }
+
+  const handleBuyByMaticCallback = () => {
+
+  }
+
+  const handleBuyByTokenCallback = () => {
+    closeModal();
   }
 
   const fetchTicketCollection = async (): Promise<TicketCollection[]> => {
@@ -218,12 +237,8 @@ const Ticket = () => {
             </T.PreNextStepContent>
           ) : (
             <T.PostNextStepContent>
-              {buyByMatic && (
-                <p>Bought by Matic</p>
-              )}
-              {buyByToken && (
-                <p>Bought by Token</p>
-              )}
+              {buyByMatic && <p>Bought by Matic</p>}
+              {buyByToken && <TokenPurchase contractAddress={selectedItem.contractAddress} handleBuyByTokenCallback={handleBuyByTokenCallback} />}
               {/* {!isPolygonBtn ? (
                 <T.TicketBtn onClick={() => setIsPolygonBtn(true)}>Polygon ID authentication request</T.TicketBtn>
               ) : (
