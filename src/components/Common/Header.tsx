@@ -257,11 +257,7 @@ const Header = () => {
           null
         ) : (
           <ModalPortal isOpen={isModalOpen} onClose={closeModal}>
-            <PolygonIDVerifier
-              accountAddress={isConnected ? address : ''}
-              credentialType={"Authorization"}
-              loginHandler={handleLogin}
-            />
+            <PolygonIDVerifier loginHandler={handleLogin} />
           </ModalPortal>
         )}
       </div>
