@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import * as T from '@/styles/Ticket.styles';
 import * as P from '@/styles/PolygonID.styles';
 import { authContext } from '@/context/providers';
@@ -152,7 +152,7 @@ const ClaimCredential = ({ contractAddress }: ClaimCredentialProps) => {
     }
 
     return (
-        <T.PreNextStepContent>
+        <P.QRCodeContainer>
             {isLoading && <T.CardContainer>
                 <p>Please wait...</p>
                 <P.StyledSpinner viewBox="0 0 50 50">
@@ -176,7 +176,7 @@ const ClaimCredential = ({ contractAddress }: ClaimCredentialProps) => {
                     <T.TicketBtn onClick={handleGetCredentialQR}>Request Credential QR Code</T.TicketBtn>
                 </T.CardContainer>
             )}
-        </T.PreNextStepContent>
+        </P.QRCodeContainer>
     )
 }
 

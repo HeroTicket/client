@@ -6,8 +6,6 @@ import * as P from '@/styles/PolygonID.styles';
 import Link from "next/link";
 
 interface PolygonIDProps {
-  accountAddress?: string;
-  credentialType: string;
   loginHandler: (tokenPair: any) => void;
 
 }
@@ -36,11 +34,7 @@ interface SocketEvent {
   data: { accessToken: string; refreshToken: string }; // JWT 토큰페어
 }
 
-const PolygonIDVerifier = ({
-  accountAddress,
-  credentialType,
-  loginHandler,
-}: PolygonIDProps) => {
+const PolygonIDVerifier = ({ loginHandler }: PolygonIDProps) => {
   const [sessionId, setSessionId] = useState<string>("");
   const [qrCodeData, setQrCodeData] = useState<QRCodeData | null>(null);
   const [isHandlingVerification, setIsHandlingVerification] = useState<boolean>(false);
@@ -49,7 +43,6 @@ const PolygonIDVerifier = ({
   const [verificationMessage, setVerificationMessage] = useState<string>("");
   const [socketEvents, setSocketEvents] = useState<SocketEvent[]>([]);
   const linkDownloadPolygonIDWalletApp = "https://0xpolygonid.github.io/tutorials/wallet/wallet-overview/#quick-start";
-  const issuerOrHowToLink = "https://oceans404.notion.site/How-to-get-a-Verifiable-Credential-f3d34e7c98ec4147b6b2fae79066c4f6?pvs=4";
 
   const socket = useRef<WebSocket | null>(null);
 
@@ -180,12 +173,6 @@ const PolygonIDVerifier = ({
           <button>
             <Link href={linkDownloadPolygonIDWalletApp} target="_blank">
               Download the Polygon ID Wallet App
-              <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
-            </Link>
-          </button>
-          <button>
-            <Link href={issuerOrHowToLink} target="_blank">
-              Get a {credentialType} VC
               <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
             </Link>
           </button>

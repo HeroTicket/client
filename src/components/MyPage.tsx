@@ -9,6 +9,7 @@ import { authContext } from '@/context/providers';
 import axios from 'axios';
 import { useQuery } from 'react-query';
 import ClaimCredential from './ClaimCredential';
+import VerifyCredential from './VerifyCredential';
 
 interface GetProfileResponse {
   status: number;
@@ -162,7 +163,7 @@ const MyPage = () => {
         <T.CardContainer>
           {
             profileQuery.data?.ownedTickets && profileQuery.data?.ownedTickets.map((ticket) => {
-              const metadata = JSON.parse(ticket.metadata);
+              const metadata = ticket.metadata ? JSON.parse(ticket.metadata) : {};
               const imageUrl = metadata.url || DefaultImg;
 
               return <T.Card key={ticket.token_id} onClick={() => openModal(ticket)}>
@@ -206,10 +207,7 @@ const MyPage = () => {
           {
             'metadata' in selectedItem ?
               <ClaimCredential contractAddress={selectedItem.token_address} /> :
-              <T.PreNextStepContent>
-                <T.ModalImageContainer>
-                </T.ModalImageContainer>
-              </T.PreNextStepContent>
+              <VerifyCredential contractAddress={selectedItem.contractAddress} close={closeModal} />
           }
         </ModalPortal>
 
