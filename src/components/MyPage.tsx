@@ -4,10 +4,11 @@ import Image from 'next/image';
 import Swal from 'sweetalert2';
 import * as T from '@/styles/Ticket.styles';
 import * as M from '@/styles/MyPage.styles';
-import { DefaultImg, MainImg } from './Common/Reference';
+import { DefaultImg, MainImg, ModalPortal } from './Common/Reference';
 import { authContext } from '@/context/providers';
 import axios from 'axios';
 import { useQuery } from 'react-query';
+import ClaimCredential from './ClaimCredential';
 
 interface GetProfileResponse {
   status: number;
@@ -67,10 +68,12 @@ interface TicketCollection {
 }
 
 const MyPage = () => {
-  const [activeTab, setActiveTab] = React.useState('purchased');
+  const [activeTab, setActiveTab] = useState('purchased');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedItem, setSelectedItem] = useState<OwnedTicket | TicketCollection | null>(null);
   const router = useRouter();
 
-  const { isLoading, isLoggedIn, isRegistered, addressMatched, userInfo } = useContext(authContext);
+  const { isLoading, isLoggedIn, isRegistered, addressMatched, accessToken, userInfo } = useContext(authContext);
 
   const fetchProfile = async (): Promise<Profile> => {
     if (!userInfo) {
@@ -89,6 +92,21 @@ const MyPage = () => {
   const profileQuery = useQuery<Profile, Error>(['profile', userInfo], fetchProfile, {
     enabled: isLoggedIn && isRegistered && addressMatched,
   });
+
+  const openModal = (item: OwnedTicket | TicketCollection) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+    document.body.style.overflow = "hidden";
+  }
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedItem(null);
+    document.body.style.overflow = "unset";
+    setTimeout(() => {
+      setSelectedItem(null);
+    }, 300);
+  }
 
   useEffect(() => {
     if (isLoading) {
@@ -147,7 +165,7 @@ const MyPage = () => {
               const metadata = JSON.parse(ticket.metadata);
               const imageUrl = metadata.url || DefaultImg;
 
-              return <T.Card key={ticket.token_id}>
+              return <T.Card key={ticket.token_id} onClick={() => openModal(ticket)}>
                 <T.CardImgContainer>
                   <Image src={imageUrl} alt="poster" fill quality={100} priority />
                 </T.CardImgContainer>
@@ -168,8 +186,7 @@ const MyPage = () => {
         <T.CardContainer>
           {
             profileQuery.data?.issuedTickets && profileQuery.data?.issuedTickets.map((ticket) => {
-              console.log(ticket);
-              return <T.Card key={ticket.id}>
+              return <T.Card key={ticket.id} onClick={() => openModal(ticket)}>
                 <T.CardImgContainer>
                   <Image src={ticket.bannerUrl || DefaultImg} alt="poster" fill quality={100} priority />
                 </T.CardImgContainer>
@@ -182,6 +199,20 @@ const MyPage = () => {
             })
           }
         </T.CardContainer>
+      )}
+      {/* Modal */}
+      {selectedItem && (
+        <ModalPortal isOpen={isModalOpen} onClose={closeModal} >
+          {
+            'metadata' in selectedItem ?
+              <ClaimCredential contractAddress={selectedItem.token_address} /> :
+              <T.PreNextStepContent>
+                <T.ModalImageContainer>
+                </T.ModalImageContainer>
+              </T.PreNextStepContent>
+          }
+        </ModalPortal>
+
       )}
     </M.MyPageContainer>
   )
