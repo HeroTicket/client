@@ -163,12 +163,14 @@ const MyPage = () => {
         <T.CardContainer>
           {
             profileQuery.data?.ownedTickets && profileQuery.data?.ownedTickets.map((ticket) => {
-              const metadata = ticket.metadata ? JSON.parse(ticket.metadata) : {};
+              const metadata = ticket.metadata ? JSON.parse(ticket.metadata) : { url: "" };
               const imageUrl = metadata.url || DefaultImg;
 
               return <T.Card key={ticket.token_id} onClick={() => openModal(ticket)}>
                 <T.CardImgContainer>
-                  <Image src={imageUrl} alt="poster" fill quality={100} priority />
+                  <Image src={imageUrl} alt="poster" fill quality={100} priority onError={(e) => {
+                    e.currentTarget.srcset = DefaultImg.src;
+                  }} />
                 </T.CardImgContainer>
                 <T.CardContent>
                   <h2>{ticket.name}</h2>
