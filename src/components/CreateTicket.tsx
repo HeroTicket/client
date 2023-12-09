@@ -88,6 +88,8 @@ const CreateTicket = () => {
   const { isLoading, isLoggedIn, isRegistered, addressMatched, accessToken, userInfo } = useContext(authContext);
   const [keyword, setKeyword] = useState<string>('');
   const debouncedKeyword = useDebounce(keyword, 500);
+  const [location, setLocation] = useState<string>('');
+  const debouncedLocation = useDebounce(location, 500);
   const [requestId, setRequestId] = useState<`0x${string}`>('0x00');
   const [ipfsHash, setIpfsHash] = useState<string>('');
   const [ticketImageUrl, setTicketImageUrl] = useState<string>('');
@@ -96,8 +98,8 @@ const CreateTicket = () => {
     address: process.env.NEXT_PUBLIC_HERO_TICKET_ADDRESS as `0x${string}`,
     abi: HeroTicketAbi,
     functionName: 'requestTicketImage',
-    args: [`0x${process.env.NEXT_PUBLIC_ENCRYPTED_SECRET}`, "Virtual", debouncedKeyword],
-    enabled: debouncedKeyword !== '',
+    args: [`0x${process.env.NEXT_PUBLIC_ENCRYPTED_SECRET}`, debouncedLocation, debouncedKeyword],
+    enabled: debouncedKeyword !== '' && debouncedLocation !== '',
   });
 
   const { data, write, isError, error } = useContractWrite(config);
@@ -154,7 +156,9 @@ const CreateTicket = () => {
         args: [requestId] as const,
       })
 
-      if (data && !data[0]) {
+      console.log('data', data);
+
+      if (data && data[0] == 0n) {
         console.log('data', data);
         Swal.fire({
           title: 'Failed',
@@ -187,12 +191,13 @@ const CreateTicket = () => {
             icon: 'success',
             confirmButtonText: 'OK'
           });
+          return;
         } else {
           throw new Error('IPFS Hash is not valid.');
         }
-      } else {
-        throw new Error('Please request ticket image first or wait for the request to be processed.');
       }
+
+      throw new Error('Please request ticket image first or wait for the request to be processed.');
     } catch (error: any) {
       Swal.fire({
         title: 'Error',
@@ -205,9 +210,7 @@ const CreateTicket = () => {
 
   const router = useRouter();
   const [bannerFile, setBannerFile] = useState<File | null>(null);
-  const [ticketFile, setTicketFile] = useState<IFile | null>(null);
   const [bannerFileUrl, setBannerFileUrl] = useState<IFile | null>(null);
-  const [ticketFileUrl, setTicketFileUrl] = useState<IFile | null>(null);
 
   const fileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     // 파일이 있는지 확인
@@ -221,17 +224,12 @@ const CreateTicket = () => {
     const FSIZE = (FILE.size) / Math.pow(10, 6);
     const inputId = e.target.id;
 
-    console.log(FILE)
-
     if (FSIZE < SIZE && EXTENSIONS.some(extension => extension.type === TYPE)) {
       const objectURL = URL.createObjectURL(FILE);
 
       if (inputId === 'ticket-banner') {
         setBannerFile(FILE);
         setBannerFileUrl({ ...FILE, preview: objectURL });
-      } else if (inputId === 'ticket') {
-        setTicketFileUrl({ ...FILE, preview: objectURL });
-        setTicketFile({ ...FILE, url: objectURL });
       }
     } else {
       // 파일 크기 오류 처리
@@ -247,10 +245,31 @@ const CreateTicket = () => {
   const handleRequestTicketImage = (event: React.FormEvent) => {
     event.preventDefault();
 
-    write?.()
+    if (!debouncedKeyword || !debouncedLocation) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Keyword and Location are required.',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
+
+    if (!write) {
+      Swal.fire({
+        title: 'Error',
+        text: 'Something went wrong... Please try again...',
+        icon: 'error',
+        confirmButtonText: 'OK'
+      });
+      return;
+    }
 
     setRequestId('0x00');
     setIpfsHash('');
+
+
+    write();
   }
 
   const handleCreateTicket = async (ticketData: CreateTicketData): Promise<TicketCollection> => {
@@ -317,7 +336,7 @@ const CreateTicket = () => {
     ticketData.saleDuration = Number((document.getElementById('sale-duration') as HTMLInputElement).value);
 
     Swal.fire({
-      title: "Are you sure to create this ticket?",
+      title: "Create Ticket reuires 500 HT",
       text: `Your current token balance: ${userInfo!.tbaTokenBalance}`,
       icon: "info",
       showCancelButton: true,
@@ -338,7 +357,7 @@ const CreateTicket = () => {
                 text: `${data.contractAddress} is created.`,
                 icon: "success",
                 willClose: () => {
-                  router.reload();
+                  router.push('/ticket');
                 }
               })
 
@@ -393,7 +412,6 @@ const CreateTicket = () => {
               ) : (
                 <FontAwesomeIcon icon={faImage} />
               )}
-              <input id='ticket' type='file' accept='image/*' onChange={fileUpload} hidden />
             </div>
           </C.CreateImageContainer>
         </C.ImageInputContainer>
@@ -402,6 +420,10 @@ const CreateTicket = () => {
             <div>
               <label htmlFor='keyword'>Keyword <span>*</span></label>
               <input type='text' placeholder='Keyword' id='keyword' required value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+            </div>
+            <div>
+              <label htmlFor='location'>Location <span>*</span></label>
+              <input type='text' placeholder='location' id='location' required value={location} onChange={(e) => setLocation(e.target.value)} />
             </div>
           </C.InputContainer>
           {isSuccess && (
@@ -440,7 +462,7 @@ const CreateTicket = () => {
           )}
         </C.InputWrap>
         <div>
-          <S.ButtonStyle disabled={!write || isTxLoading} type='submit'>{isTxLoading ? "Sending Tx..." : "Request Ticket Image"}</S.ButtonStyle>
+          <S.ButtonStyle disabled={isTxLoading} type='submit'>{isTxLoading ? "Sending Tx..." : "Request Ticket Image"}</S.ButtonStyle>
           {" "}
           <S.ButtonStyle onClick={handleLoadTicketImage}>Load Ticket Image</S.ButtonStyle>
         </div>
@@ -478,18 +500,18 @@ const CreateTicket = () => {
               <input type='text' placeholder='organizer' id='organizer' required />
             </div>
             <div>
-              <label htmlFor='location'>Location <span>*</span></label>
-              <input type='text' placeholder='location' id='location' required />
+              <label htmlFor='date'>Date <span>*</span></label>
+              <input type='date' placeholder='date' id='date' required />
             </div>
           </C.InputContainer>
           <C.InputContainer>
             <div>
-              <label htmlFor='date'>Date <span>*</span></label>
-              <input type='date' placeholder='date' id='date' required />
-            </div>
-            <div>
               <label htmlFor='total'>Ticket Total Supply <span>*</span></label>
               <input type='number' placeholder='Ticket Total Supply' id='total' required min={1} step={1} />
+            </div>
+            <div>
+              <label htmlFor='sale-duration'>Sale Duration <span>*</span></label>
+              <input type='number' placeholder='Sale Duration' id='sale-duration' step={1} required min={1} max={30} />
             </div>
           </C.InputContainer>
           <C.InputContainer>
@@ -500,12 +522,6 @@ const CreateTicket = () => {
             <div>
               <label htmlFor='token-price'>Token Price <span>*</span></label>
               <input type='number' placeholder='Token Price' id='token-price' step={1} required min={1} />
-            </div>
-          </C.InputContainer>
-          <C.InputContainer>
-            <div>
-              <label htmlFor='sale-duration'>Sale Duration <span>*</span></label>
-              <input type='number' placeholder='Sale Duration' id='sale-duration' step={1} required min={1} />
             </div>
           </C.InputContainer>
           <C.TextContainer>
