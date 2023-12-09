@@ -92,7 +92,6 @@ const CreateTicket = () => {
   const debouncedLocation = useDebounce(location, 500);
   const [requestId, setRequestId] = useState<`0x${string}`>('0x00');
   const [ipfsHash, setIpfsHash] = useState<string>('');
-  const [ticketImageUrl, setTicketImageUrl] = useState<string>('');
 
   const { config } = usePrepareContractWrite({
     address: process.env.NEXT_PUBLIC_HERO_TICKET_ADDRESS as `0x${string}`,
@@ -173,28 +172,15 @@ const CreateTicket = () => {
       if (data && data[4]) {
         const ipfsHash = data[3];
 
-        const response = await axios.get(`https://ipfs.io/ipfs/${ipfsHash}`);
+        setIpfsHash(ipfsHash);
 
-        if (response.status !== 200) {
-          throw new Error('IPFS Hash is not valid.');
-        }
-
-        const responseData = response.data;
-
-        if (responseData && responseData.url) {
-          setTicketImageUrl(responseData.url);
-          setIpfsHash(ipfsHash);
-
-          Swal.fire({
-            title: 'Success',
-            text: 'Success! Ticket image is loaded.',
-            icon: 'success',
-            confirmButtonText: 'OK'
-          });
-          return;
-        } else {
-          throw new Error('IPFS Hash is not valid.');
-        }
+        Swal.fire({
+          title: 'Success',
+          text: 'Success! Ticket image is loaded.',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+        return;
       }
 
       throw new Error('Please request ticket image first or wait for the request to be processed.');
@@ -273,7 +259,6 @@ const CreateTicket = () => {
   }
 
   const handleCreateTicket = async (ticketData: CreateTicketData): Promise<TicketCollection> => {
-    'use server'
     const formData = new FormData();
     formData.append('name', ticketData.name);
     formData.append('symbol', ticketData.symbol);
@@ -404,17 +389,6 @@ const CreateTicket = () => {
   return (
     <>
       <C.FormContainer onSubmit={handleRequestTicketImage}>
-        <C.ImageInputContainer>
-          <C.CreateImageContainer htmlFor='ticket'>
-            <div>
-              {ticketImageUrl ? (
-                <Image src={ticketImageUrl} alt='Ticket Preview' layout='responsive' width={100} height={100} quality={100} />
-              ) : (
-                <FontAwesomeIcon icon={faImage} />
-              )}
-            </div>
-          </C.CreateImageContainer>
-        </C.ImageInputContainer>
         <C.InputWrap>
           <C.InputContainer>
             <div>
