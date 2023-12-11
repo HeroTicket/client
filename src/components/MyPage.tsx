@@ -180,7 +180,7 @@ const MyPage = () => {
               </T.Card>
             })
           }
-          {profileQuery.data?.ownedTickets?.length === 0 && <p>No tickets</p>}
+          {profileQuery.data?.ownedTickets?.length === 0 && <p>No purchased tickets</p>}
           {profileQuery.isLoading && <p>Loading...</p>}
           {profileQuery.isError && <p>Error: {profileQuery.error?.message}</p>}
 
@@ -201,6 +201,9 @@ const MyPage = () => {
               </T.Card>
             })
           }
+          {profileQuery.data?.issuedTickets?.length === 0 && <p>No issued tickets</p>}
+          {profileQuery.isLoading && <p>Loading...</p>}
+          {profileQuery.isError && <p>Error: {profileQuery.error?.message}</p>}
         </T.CardContainer>
       )}
       {/* Modal */}

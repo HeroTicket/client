@@ -21,17 +21,17 @@ const Main = () => {
         }
       });
     }, { threshold: 0.5 });
-  
+
     const elements = document.querySelectorAll('.hidden');
     elements.forEach(el => observer.observe(el));
-  
+
     return () => elements.forEach(el => observer.unobserve(el));
   }, []);
 
   const scrollToService = () => {
     const serviceRefCurrent = serviceRef.current;
     if (!serviceRefCurrent) return;
-  
+
     const targetPosition = serviceRefCurrent.getBoundingClientRect().top + window.pageYOffset;
     const offsetToCenter = window.innerHeight / 2;
     const elementHeight = serviceRefCurrent.clientHeight / 2;
@@ -41,16 +41,16 @@ const Main = () => {
     const distance = scrollTo - startPosition;
     const duration = 500; // 애니메이션 지속 시간 (밀리초)
     let start: number | null = null;
-  
+
     const step = (timestamp: number) => {
       if (!start) start = timestamp;
       const progress = timestamp - start;
       const scroll = easeLinear(progress, startPosition, distance, duration);
       window.scrollTo(0, scroll);
-      
+
       if (progress < duration) window.requestAnimationFrame(step);
     }
-  
+
     window.requestAnimationFrame(step);
   };
 
@@ -76,12 +76,11 @@ const Main = () => {
     <>
       <M.MainWrap>
         <M.MainLeft>
-          <h1>Hero Ticket</h1>
+          <h1>A Blockchain-based Ticket Platform</h1>
           <p>
-             First, we used Polygon ID to enable ticket buyers to purchase and use tickets only after verifying their identity. This can prevent ticket scalping by preventing tickets from being used by anyone other than the ticket purchaser. It also prevents bots from purchasing tickets indiscriminately. And because transactions can be tracked due to the nature of blockchain, it is possible to check whether the ticket issuer is the correct ticket issuer.
-             <br></br><br></br>Second, you can use Chainlink functions to load the OPEN AI image generator to create a ticket NFT image. By creating NFT images using Chainlink, it provides users with a fresher experience.
-             <br></br><br></br>Finally, by being able to hold tickets in TBA accounts, users have their own ticket collection. And entertainment companies and sports teams can check the user's loyalty by checking the number of tickets they have through their TBA accounts. And this can provide additional benefits.
-           </p>
+            Hero Ticket is a blockchain-based ticketing platform that provides a more fair and transparent ticketing experience.<br />
+            Make your own ticket collection with Hero Ticket.
+          </p>
           <M.MainBtnWrap>
             <ButtonStyle>Get Start</ButtonStyle>
             <div onClick={scrollToService}>
@@ -104,28 +103,28 @@ const Main = () => {
         <M.ServiceCard>
           <div>
             <Image src={Security} alt='security' width={100} height={100} />
-            <p> 
+            <p>
               <span>PolygonID</span>
               You can proudly purchase, issue, and use identity verification using PolygonID.
             </p>
           </div>
           <div>
-            <Image src={NftImg} alt='nft' width={100} height={100} style={{ backgroundColor: 'rgba(228, 192, 93, 0.5)'}} />
-            <p> 
-              <span>TBA Account, ChainLink Functions</span>       
+            <Image src={NftImg} alt='nft' width={100} height={100} style={{ backgroundColor: 'rgba(228, 192, 93, 0.5)' }} />
+            <p>
+              <span>TBA Account, ChainLink Functions</span>
               Create an NFT ticket image using ChainFunctions and issue the ticket to the user's TBA Account.
             </p>
           </div>
           <div>
             <Image src={Decentralized} alt='decentralized' width={100} height={100} style={{ backgroundColor: 'rgba(78, 192, 78, 0.5)' }} />
-            <p> 
+            <p>
               <span>Transaction Tracking</span>
               Track transactions to prevent scalping and distribution of fake tickets
             </p>
           </div>
           <div>
             <Image src={Corruption} alt='corruption' width={100} height={100} style={{ backgroundColor: 'rgba(146, 198, 233, 0.5)' }} />
-            <p> 
+            <p>
               <span>Payment System</span>
               Users can pay for tickets with Eth or Token and receive Token rewards.
             </p>
@@ -141,7 +140,7 @@ const Main = () => {
             <Image src={Erc6551} alt='ERC-6551' width={500} height={300} quality={100} layout='responsive' />
             <h3>ERC-6551</h3>
             <p>
-             ERC-6551 is a standard that allows assets to be owned in ERC-721 tokens. It further increases the usability of NFT and overcomes the limitations of the existing ERC-721.
+              ERC-6551 is a standard that allows assets to be owned in ERC-721 tokens. It further increases the usability of NFT and overcomes the limitations of the existing ERC-721.
             </p>
           </div>
           <div>

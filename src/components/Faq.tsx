@@ -5,15 +5,10 @@ import { Container, Title, ListContainer } from '@/styles/styled';
 import { FaqList, FaqDesc } from '@/styles/Faq.styles';
 
 const dummyData = [
-  {'id': 1, 'title': 'title1', 'desc': `In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.
-  In veniam libero alias animi dignissimos commodi quia.In veniam libero alias animi dignissimos commodi quia.`},
-  {'id': 3, 'title': 'Quisquam odit pariatur cum officia perferendis vitae et.', 'desc': 'Quisquam ipsam dolorum sit ad.'},
-  {'id': 4, 'title': 'Voluptatem vitae aut accusamus beatae quis dicta dolore.', 'desc': 'Sapiente qui ipsum tempore fugit dignissimos iure omnis et.'},
-  {'id': 5, 'title': 'Odio cum sed minus.', 'desc': 'Sapiente qui ipsum tempore fugit dignissimos iure omnis et.'},
-  {'id': 6, 'title': 'Odio cum sed minus.', 'desc': 'Sapiente qui ipsum tempore fugit dignissimos iure omnis et.'},
-  {'id': 7, 'title': 'Odio cum sed minus.', 'desc': 'Sapiente qui ipsum tempore fugit dignissimos iure omnis et.'},
+  {
+    'id': 1, 'title': 'What is Hero Ticket?', 'desc': `Hero Ticket is a blockchain-based ticketing platform that provides a more fair and transparent ticketing experience.`,
+  },
+
 ]
 
 interface FaqData {
@@ -23,11 +18,11 @@ interface FaqData {
 }
 
 const Faq = () => {
-  const [dropDownStates, setDropDownStates] = useState<{[key: number]: boolean}>({});
+  const [dropDownStates, setDropDownStates] = useState<{ [key: number]: boolean }>({});
 
   const handleToggle = (id: number) => {
     const isCurrentlyExpanded = dropDownStates[id];
-  
+
     if (isCurrentlyExpanded) {
       // 먼저 패딩을 제거한 후 max-height 변화를 적용
       setDropDownStates(prev => ({ ...prev, [id]: false }));
@@ -35,7 +30,7 @@ const Faq = () => {
       setDropDownStates(prev => ({ ...prev, [id]: true }));
     }
   };
-  
+
   return (
     <Container>
       <Title>

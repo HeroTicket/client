@@ -7,6 +7,9 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
 import { useTimer } from 'react-timer-hook';
+import { useContractWrite, usePrepareContractWrite, useWaitForTransaction } from 'wagmi';
+import { TicketAbi } from '@/assets/abi/abi';
+import Swal from 'sweetalert2';
 
 interface PolygonIDProps {
     contractAddress: string;
@@ -67,7 +70,17 @@ const VerifyCredential = ({ contractAddress, close }: PolygonIDProps) => {
         }
     });
 
+    const { config } = usePrepareContractWrite({
+        address: contractAddress as `0x${string}`,
+        abi: TicketAbi,
+        functionName: 'claimSettlement',
+    })
 
+    const { data, write, isError, error } = useContractWrite(config);
+
+    const { data: receipt, isLoading, isSuccess } = useWaitForTransaction({
+        hash: data?.hash
+    });
 
     const getQrCodeApi = (contractAddress: string, sessionId: string) => {
         return process.env.NEXT_PUBLIC_SERVER_URL + `/tickets/${contractAddress}/verify-qr?sessionId=${sessionId}`;
@@ -126,6 +139,20 @@ const VerifyCredential = ({ contractAddress, close }: PolygonIDProps) => {
         }
     }
 
+    const claimSettlement = () => {
+        if (!write) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Sale has not ended yet or you are not the owner of this ticket.',
+                icon: 'error',
+                confirmButtonText: 'Ok'
+            });
+            return;
+        }
+
+        write();
+    }
+
     useEffect(() => {
         if (socket.current) {
             return () => {
@@ -163,11 +190,20 @@ const VerifyCredential = ({ contractAddress, close }: PolygonIDProps) => {
         }
     }, [socketEvents]);
 
+    useEffect(() => {
+        if (isSuccess) {
+            toast.success("Settlement Claimed !", {
+                position: toast.POSITION.TOP_LEFT
+            });
+        }
+    }, [isSuccess]);
+
     return (
         <>
             <ToastContainer />
             {!sessionId && (<P.QRCodeContainer>
                 <T.TicketBtn onClick={connectToSocket}>Verify Ticket</T.TicketBtn>
+                <T.TicketBtn disabled={!write} onClick={claimSettlement}>Claim Settlement</T.TicketBtn>
             </P.QRCodeContainer>)}
             {sessionId && (<P.QRCodeContainer>
                 <p>Scan this QR code from your Polygon ID Wallet App to prove ticket ownership.</p>
