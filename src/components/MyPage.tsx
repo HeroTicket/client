@@ -162,7 +162,7 @@ const MyPage = () => {
       {activeTab === 'purchased' ? (
         <T.CardContainer>
           {
-            profileQuery.data?.ownedTickets && profileQuery.data?.ownedTickets.map((ticket) => {
+            profileQuery.data?.ownedTickets ? (profileQuery.data?.ownedTickets.map((ticket) => {
               const metadata = ticket.metadata ? JSON.parse(ticket.metadata) : { url: "" };
               const imageUrl = metadata.url || DefaultImg;
 
@@ -178,17 +178,14 @@ const MyPage = () => {
                   <p className='title'>{ticket.token_id}</p>
                 </T.CardContent>
               </T.Card>
-            })
+            })) : <p>No purchased tickets</p>
           }
-          {profileQuery.data?.ownedTickets?.length === 0 && <p>No purchased tickets</p>}
           {profileQuery.isLoading && <p>Loading...</p>}
-          {profileQuery.isError && <p>Error: {profileQuery.error?.message}</p>}
-
         </T.CardContainer>
       ) : (
         <T.CardContainer>
           {
-            profileQuery.data?.issuedTickets && profileQuery.data?.issuedTickets.map((ticket) => {
+            profileQuery.data?.issuedTickets ? (profileQuery.data.issuedTickets.map((ticket) => {
               return <T.Card key={ticket.id} onClick={() => openModal(ticket)}>
                 <T.CardImgContainer>
                   <Image src={ticket.bannerUrl || DefaultImg} alt="poster" fill quality={100} priority />
@@ -199,11 +196,8 @@ const MyPage = () => {
                   <p className='title'>{ticket.symbol}</p>
                 </T.CardContent>
               </T.Card>
-            })
+            })) : <p>No issued tickets</p>
           }
-          {profileQuery.data?.issuedTickets?.length === 0 && <p>No issued tickets</p>}
-          {profileQuery.isLoading && <p>Loading...</p>}
-          {profileQuery.isError && <p>Error: {profileQuery.error?.message}</p>}
         </T.CardContainer>
       )}
       {/* Modal */}
